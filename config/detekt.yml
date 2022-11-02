@@ -101,5 +101,11 @@ potential-bugs:
         active: true
 
 style:
+    MagicNumber:
+        active: false
     WildcardImport:
+        active: false
+
+formatting:
+    NoWildcardImports:
         active: false

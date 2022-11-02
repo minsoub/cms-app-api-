@@ -2,7 +2,7 @@ package com.bithumbsystems.cms.api.controller
 
 import com.bithumbsystems.cms.api.model.response.Response
 import com.bithumbsystems.cms.api.service.BoardService
-import com.bithumbsystems.cms.api.service.operator.ServiceOperator.Companion.execute
+import com.bithumbsystems.cms.api.service.operator.ServiceOperator.execute
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
@@ -17,6 +17,11 @@ class BoardController(
     @GetMapping
     suspend fun getBoards(): Response<Any>? = execute {
         boardService.getList()
+    }
+
+    @GetMapping("/top")
+    suspend fun getTopBoard(): Response<Any>? = execute {
+        boardService.getTop()
     }
 
     @GetMapping("/{boardId}")

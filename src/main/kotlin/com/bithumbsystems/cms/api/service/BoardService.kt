@@ -3,26 +3,27 @@ package com.bithumbsystems.cms.api.service
 import com.bithumbsystems.cms.api.model.response.BoardResponse
 import com.bithumbsystems.cms.api.model.response.ErrorData
 import com.bithumbsystems.cms.api.model.response.toResponse
-import com.bithumbsystems.cms.api.service.operator.ServiceOperator.Companion.executeIn
+import com.bithumbsystems.cms.api.service.operator.RedisOperator
+import com.bithumbsystems.cms.api.service.operator.ServiceOperator.executeIn
 import com.bithumbsystems.cms.persistence.mongo.repository.CmsNoticeRepository
 import com.github.michaelbull.result.Result
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
-import kotlinx.coroutines.reactive.asFlow
-import kotlinx.coroutines.reactor.awaitSingle
-import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.springframework.stereotype.Service
 
 @Service
 class BoardService(
+    private val ioDispatcher: CoroutineDispatcher,
+    private val redisOperator: RedisOperator,
     private val cmsNoticeRepository: CmsNoticeRepository
 ) {
 
     suspend fun getOne(id: String): Result<BoardResponse?, ErrorData> =
         executeIn(
-            validator = { cmsNoticeRepository.existsById(id).awaitSingle() },
+            validator = { cmsNoticeRepository.existsById(id) },
             action = {
-                val cms = cmsNoticeRepository.findById(id).awaitSingleOrNull()
+                val cms = cmsNoticeRepository.findById(id)
                 cms?.toResponse()
             }
         )
@@ -30,9 +31,23 @@ class BoardService(
     suspend fun getList(): Result<List<BoardResponse>?, ErrorData> =
         executeIn(
             action = {
-                cmsNoticeRepository.findAll().asFlow().map {
+                cmsNoticeRepository.findAll().map {
                     it.toResponse()
                 }.toList()
+            }
+        )
+
+    suspend fun getTop(): Result<BoardResponse?, ErrorData> =
+        executeIn(
+            dispatcher = ioDispatcher,
+            action = {
+                redisOperator.getTopNotice()?.toResponse()
+            },
+            fallback = {
+                cmsNoticeRepository.findById("1")?.toResponse()
+            },
+            afterJob = {
+                redisOperator.setTopNotice(it.toEntity())
             }
         )
 }

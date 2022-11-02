@@ -13,11 +13,12 @@
     - junit5
     - mockk
     - kluent
+    - kover
+      - test coverage
 - Datasource
     - MongoDB
     - Redis
         - redisson
-            - DB와 WRITE_BEHIND 동기화
 
 ##  프로젝트 구성
 
@@ -26,6 +27,7 @@
 - Detekt(정적분석)
 - Ktlint(스타일)
 - kotlin-result(https://github.com/michaelbull/kotlin-result)
+
 ### 유의사항
 M1의 경우 build.gradle.kts dependency 에 추가
 (현재 추가 상태)
@@ -43,6 +45,12 @@ detekt
 ```
 ./gradlew detekt
 ```
+
+kover
+```
+./gradlew koverVerify
+```
+
 
 ### Swagger API 테스트 경로
 

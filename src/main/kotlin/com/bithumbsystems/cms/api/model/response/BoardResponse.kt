@@ -2,7 +2,7 @@ package com.bithumbsystems.cms.api.model.response
 
 import com.bithumbsystems.cms.persistence.mongo.entity.CmsNotice
 
-class BoardResponse(
+data class BoardResponse(
     val categoryId: String,
     val title: String,
     val isFixTop: Boolean,
@@ -18,7 +18,11 @@ class BoardResponse(
     val createDate: Long,
     val updateAccountId: String?,
     val updateDate: Long?
-)
+) {
+    fun toEntity(): CmsNotice = CmsNotice(
+        categoryId, title, content, shareTitle, shareDescription, scheduleDate, createAccountId, createDate
+    )
+}
 
 fun CmsNotice.toResponse() = BoardResponse(
     categoryId, title, isFixTop, isShow, isBanner, content, fileId, shareTitle,

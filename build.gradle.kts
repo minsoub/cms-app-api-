@@ -5,8 +5,7 @@ plugins {
     id("io.spring.dependency-management") version "1.0.11.RELEASE"
     id("org.jlleitschuh.gradle.ktlint") version "11.0.0"
     id("io.gitlab.arturbosch.detekt") version "1.21.0"
-
-    id("jacoco")
+    id("org.jetbrains.kotlinx.kover") version "0.6.1"
 
     kotlin("jvm") version "1.6.21"
     kotlin("plugin.spring") version "1.6.21"
@@ -37,7 +36,7 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactive")
     implementation("org.jetbrains.kotlin:kotlin-gradle-plugin")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
-//
+
 //    implementation("io.arrow-kt:arrow-core:1.0.1")
 //    implementation("io.arrow-kt:arrow-fx-coroutines:1.0.1")
 
@@ -101,4 +100,22 @@ tasks.withType<Test> {
 
 tasks.getByName<Test>("test") {
     systemProperty("spring.profiles.active", "test")
+}
+
+kover {
+    verify {
+        onCheck.set(true)
+        rule {
+            isEnabled = true
+            name = null
+            target = kotlinx.kover.api.VerificationTarget.ALL
+
+            bound {
+                minValue = 60
+                maxValue = 100
+                counter = kotlinx.kover.api.CounterType.LINE
+                valueType = kotlinx.kover.api.VerificationValueType.COVERED_PERCENTAGE
+            }
+        }
+    }
 }
