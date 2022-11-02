@@ -26,7 +26,7 @@ object PortCheckUtil {
 
     @Throws(IOException::class)
     private fun executeGrepProcessCommand(port: Int): Process {
-        val command = String.format("netstat -nat | grep LISTEN|grep %d", port)
+        val command = "netstat -nat | grep LISTEN|grep $port"
         logger.info(command)
         val shell = arrayOf("/bin/sh", "-c", command)
         return Runtime.getRuntime().exec(shell)
@@ -44,7 +44,7 @@ object PortCheckUtil {
                     pidInfo.append(line)
                 }
             }
-        } catch (e: Exception) {
+        } catch (e: IOException) {
             logger.error(e.localizedMessage)
         }
         return !StringUtils.isEmpty(pidInfo.toString())

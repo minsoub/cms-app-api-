@@ -1,30 +1,103 @@
 package com.bithumbsystems.cms.api.service.operator
 
-import com.bithumbsystems.cms.api.model.response.SingleResponse
+import com.bithumbsystems.cms.api.model.response.ErrorData
+import com.bithumbsystems.cms.api.model.response.Response
+import com.bithumbsystems.cms.persistence.mongo.enums.ErrorCode
+import com.bithumbsystems.cms.persistence.mongo.enums.ResponseCode
+import com.github.michaelbull.result.Result
+import com.github.michaelbull.result.coroutines.runSuspendCatching
+import com.github.michaelbull.result.fold
+import com.github.michaelbull.result.mapError
 import kotlinx.coroutines.*
+import kotlinx.coroutines.reactor.ReactorContext
+import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.coroutineContext
 
-object ServiceOperator {
+class ServiceOperator {
 
-    suspend fun <T : Any> execute(
-        dispatcher: CoroutineDispatcher = Dispatchers.IO,
-        validator: (suspend () -> Boolean)?,
-        job: suspend () -> T?,
-        fallback: suspend () -> Unit,
-        afterJob: suspend () -> Unit
-    ): T? = runCatching {
-        if (validator != null) {
-            check(validator())
+    companion object {
+        private val requestIdThreadLocal = ThreadLocal<String>()
+        const val CONTEXT_NAME = "CMS_CONTEXT"
+
+        fun set(requestId: String) {
+            requestIdThreadLocal.set(requestId)
         }
-        val result = job()
-        supervisorScope {
-            launch(dispatcher) {
-                afterJob()
+
+        private fun clear() {
+            requestIdThreadLocal.remove()
+        }
+
+        private fun asContextElement(requestId: String): CoroutineContext {
+            return requestIdThreadLocal.asContextElement(requestId)
+        }
+
+        private fun errorHandler(throwable: Throwable): ErrorData = when (throwable) {
+            is IllegalArgumentException ->
+                ErrorData(
+                    ErrorCode.ILLEGAL_ARGUMENT,
+                    message = ErrorCode.ILLEGAL_ARGUMENT.message
+                )
+
+            is IllegalStateException ->
+                ErrorData(
+                    ErrorCode.ILLEGAL_STATE,
+                    message = ErrorCode.ILLEGAL_STATE.message
+                )
+
+            else -> {
+                ErrorData(
+                    ErrorCode.UNKNOWN,
+                    message = ErrorCode.UNKNOWN.message
+                )
             }
         }
-        result
-    }.onSuccess {
-        SingleResponse(data = it)
-    }.onFailure {
-        fallback()
-    }.getOrThrow()
+
+        suspend fun <T> execute(
+            block: suspend () -> Result<T?, ErrorData>
+        ): Response<Any> = withContext(
+            asContextElement(coroutineContext[ReactorContext]?.context?.get<String>(CONTEXT_NAME)!!)
+        ) {
+            set(kotlin.coroutines.coroutineContext[ReactorContext]?.context?.get<String>(CONTEXT_NAME)!!)
+            val result = block()
+            clear()
+            result.fold(
+                success = { Response(result = ResponseCode.SUCCESS, data = it) },
+                failure = { Response(result = ResponseCode.ERROR, data = it) }
+            )
+        }
+
+        suspend fun <T> executeIn(
+            validator: suspend () -> Boolean,
+            action: suspend () -> T?
+        ): Result<T?, ErrorData> = runSuspendCatching {
+            check(validator())
+            action()
+        }.mapError {
+            errorHandler(it)
+        }
+
+        suspend fun <T> executeIn(
+            action: suspend () -> T?
+        ): Result<T?, ErrorData> = runSuspendCatching {
+            action()
+        }.mapError {
+            errorHandler(it)
+        }
+
+        suspend fun <T> executeIn(
+            dispatcher: CoroutineDispatcher,
+            action: suspend () -> T?,
+            afterJob: suspend () -> Unit
+        ): Result<T?, ErrorData> = runSuspendCatching {
+            val result = action()
+            supervisorScope {
+                launch(dispatcher) {
+                    afterJob()
+                }
+            }
+            result
+        }.mapError {
+            errorHandler(it)
+        }
+    }
 }

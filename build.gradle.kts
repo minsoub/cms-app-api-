@@ -4,6 +4,8 @@ plugins {
     id("org.springframework.boot") version "2.6.7"
     id("io.spring.dependency-management") version "1.0.11.RELEASE"
     id("org.jlleitschuh.gradle.ktlint") version "11.0.0"
+    id("io.gitlab.arturbosch.detekt") version "1.21.0"
+
     id("jacoco")
 
     kotlin("jvm") version "1.6.21"
@@ -35,9 +37,14 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactive")
     implementation("org.jetbrains.kotlin:kotlin-gradle-plugin")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
+//
+//    implementation("io.arrow-kt:arrow-core:1.0.1")
+//    implementation("io.arrow-kt:arrow-fx-coroutines:1.0.1")
 
-    implementation("io.arrow-kt:arrow-core:1.0.1")
-    implementation("io.arrow-kt:arrow-fx-coroutines:1.0.1")
+    implementation("com.michael-bull.kotlin-result:kotlin-result:1.1.16")
+    implementation("com.michael-bull.kotlin-result:kotlin-result-coroutines:1.1.16")
+
+    detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.21.0")
 
     // open api
     implementation("org.springdoc:springdoc-openapi-webflux-ui:1.6.9")
@@ -64,6 +71,12 @@ dependencies {
     testImplementation("io.projectreactor:reactor-test:3.4.18")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.2")
     testImplementation("io.mockk:mockk:1.12.4")
+}
+
+detekt {
+    buildUponDefaultConfig = true
+    allRules = false
+    config = files("$rootDir/config/detekt.yml")
 }
 
 tasks.getByName<org.springframework.boot.gradle.tasks.bundling.BootJar>("bootJar") {

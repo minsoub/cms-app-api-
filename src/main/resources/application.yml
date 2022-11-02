@@ -12,8 +12,11 @@ spring:
       auto-index-creation: true
       uuid-representation: standard
       field-naming-strategy: org.springframework.data.mapping.model.SnakeCaseFieldNamingStrategy
+  redis:
+      host: localhost
+      port: 6379
   pid:
-    file: ${instance.pid}
+    file: ${instance.pid:8282282}
 
 application:
   version: /v1
@@ -40,8 +43,7 @@ logging:
         data:
           mongodb:
             core:
-              MongoTemplate: ${management.api.logging.level.mongo:DEBUG}
+              MongoTemplate: ${cms.app.api.logging.level.mongo:DEBUG}
     io:
       spring:
         cloud: INFO
-  config: classpath:logback-spring-${spring.profiles.active}.xml

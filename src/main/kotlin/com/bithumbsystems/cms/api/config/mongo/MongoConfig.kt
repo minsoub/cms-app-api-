@@ -11,10 +11,10 @@ import org.springframework.data.mongodb.core.convert.MappingMongoConverter
 import org.springframework.data.mongodb.repository.config.EnableReactiveMongoRepositories
 
 @Configuration
-@EnableReactiveMongoRepositories
+@EnableReactiveMongoRepositories("com.bithumbsystems.cms.persistence.mongo")
 class MongoConfig : AbstractReactiveMongoConfiguration() {
 
-    override fun getDatabaseName() = "mongoDatabase"
+    override fun getDatabaseName() = "test"
 
     override fun reactiveMongoClient(): MongoClient = mongoClient()
 

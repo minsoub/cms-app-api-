@@ -1,6 +1,6 @@
 package com.bithumbsystems.cms.api.model.response
 
-import com.bithumbsystems.cms.api.model.mongo.entity.CmsNotice
+import com.bithumbsystems.cms.persistence.mongo.entity.CmsNotice
 
 class BoardResponse(
     val categoryId: String,
@@ -9,17 +9,18 @@ class BoardResponse(
     val isShow: Boolean,
     val isBanner: Boolean,
     val content: String,
-    val fileId: String,
+    val fileId: String?,
     val shareTitle: String,
     val shareDescription: String,
-    val scheduleDate: Long,
+    val scheduleDate: Long?,
     val isDraft: Boolean,
     val createAccountId: String,
     val createDate: Long,
     val updateAccountId: String?,
-    val updateDate: Long
+    val updateDate: Long?
 )
 
 fun CmsNotice.toResponse() = BoardResponse(
-    categoryId, title, isFixTop, isShow, isBanner, content, fileId, shareTitle, shareDescription, scheduleDate, isDraft, createAccountId, createDate, updateAccountId, updateDate
+    categoryId, title, isFixTop, isShow, isBanner, content, fileId, shareTitle,
+    shareDescription, scheduleDate, isDraft, createAccountId, createDate, updateAccountId, updateDate
 )

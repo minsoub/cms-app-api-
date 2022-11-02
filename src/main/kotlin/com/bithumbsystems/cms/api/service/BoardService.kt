@@ -1,11 +1,11 @@
 package com.bithumbsystems.cms.api.service
 
-import arrow.core.Either
-import com.bithumbsystems.cms.api.model.mongo.repository.CmsNoticeRepository
 import com.bithumbsystems.cms.api.model.response.BoardResponse
+import com.bithumbsystems.cms.api.model.response.ErrorData
 import com.bithumbsystems.cms.api.model.response.toResponse
-import com.bithumbsystems.cms.api.service.operator.ServiceOperator.execute
-import kotlinx.coroutines.CoroutineDispatcher
+import com.bithumbsystems.cms.api.service.operator.ServiceOperator.Companion.executeIn
+import com.bithumbsystems.cms.persistence.mongo.repository.CmsNoticeRepository
+import com.github.michaelbull.result.Result
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow
@@ -15,39 +15,24 @@ import org.springframework.stereotype.Service
 
 @Service
 class BoardService(
-    private val ioDispatcher: CoroutineDispatcher,
     private val cmsNoticeRepository: CmsNoticeRepository
 ) {
 
-    suspend fun getOne(id: String): BoardResponse? = execute(
-        dispatcher = ioDispatcher,
-        validator = {
-            cmsNoticeRepository.existsById(id).awaitSingle()
-        },
-        job = {
-            cmsNoticeRepository.findById(id).awaitSingleOrNull()?.toResponse()
-        },
-        afterJob = {
-        },
-        fallback = {
-        }
-    )
+    suspend fun getOne(id: String): Result<BoardResponse?, ErrorData> =
+        executeIn(
+            validator = { cmsNoticeRepository.existsById(id).awaitSingle() },
+            action = {
+                val cms = cmsNoticeRepository.findById(id).awaitSingleOrNull()
+                cms?.toResponse()
+            }
+        )
 
-    suspend fun getOneEither(id: String): Either<Exception, BoardResponse?> {
-        return TODO("Provide the return value")
-    }
-
-    suspend fun getList(): List<BoardResponse>? = execute(
-        dispatcher = ioDispatcher,
-        validator = null,
-        job = {
-            cmsNoticeRepository.findAll().asFlow().map {
-                it.toResponse()
-            }.toList()
-        },
-        afterJob = {
-        },
-        fallback = {
-        }
-    )
+    suspend fun getList(): Result<List<BoardResponse>?, ErrorData> =
+        executeIn(
+            action = {
+                cmsNoticeRepository.findAll().asFlow().map {
+                    it.toResponse()
+                }.toList()
+            }
+        )
 }
