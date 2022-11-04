@@ -24,6 +24,7 @@ dependencies {
     // Spring
     implementation("org.springframework.boot:spring-boot-starter-webflux")
     implementation("org.springframework.boot:spring-boot-configuration-processor:2.6.7")
+    implementation("org.springframework.boot:spring-boot-starter-actuator")
 
     // Kotlin
     kapt("org.springframework.boot:spring-boot-configuration-processor:2.6.7")

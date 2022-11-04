@@ -25,7 +25,7 @@ class CmsNotice(
     var isShow: Boolean = true
     var isBanner: Boolean = false
     var isDraft: Boolean = false
-
+    var readCount: Long = 0
     var updateAccountId: String? = null
     var updateDate: Long? = 0
 }
