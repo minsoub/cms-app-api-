@@ -1,7 +1,7 @@
 package com.bithumbsystems.cms.integration
 
 import com.bithumbsystems.cms.api.model.response.Response
-import com.bithumbsystems.cms.persistence.mongo.enums.ResponseCode
+import com.bithumbsystems.cms.api.model.enums.ResponseCode
 import org.amshove.kluent.`should be`
 import org.junit.jupiter.api.*
 import org.springframework.beans.factory.annotation.Autowired

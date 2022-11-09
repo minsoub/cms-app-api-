@@ -1,4 +1,4 @@
-package com.bithumbsystems.cms.api.service.operator
+package com.bithumbsystems.cms.persistence.redis
 
 import com.bithumbsystems.cms.persistence.mongo.entity.CmsNotice
 import kotlinx.coroutines.reactor.awaitSingle

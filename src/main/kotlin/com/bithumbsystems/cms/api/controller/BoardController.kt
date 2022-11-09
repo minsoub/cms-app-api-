@@ -2,7 +2,7 @@ package com.bithumbsystems.cms.api.controller
 
 import com.bithumbsystems.cms.api.model.response.Response
 import com.bithumbsystems.cms.api.service.BoardService
-import com.bithumbsystems.cms.api.service.operator.ServiceOperator.execute
+import com.bithumbsystems.cms.api.config.operator.ServiceOperator.execute
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping

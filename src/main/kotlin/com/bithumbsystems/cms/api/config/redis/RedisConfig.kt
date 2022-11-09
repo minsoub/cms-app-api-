@@ -53,7 +53,6 @@ class RedisConfig(
     fun redissonReactiveClient(): RedissonReactiveClient =
         Redisson.create().reactive()
 
-
     @Bean
     fun readCountRMapCache(redissonReactiveClient: RedissonReactiveClient): RMapCacheReactive<String, Long> {
         return redissonReactiveClient.getMapCache(

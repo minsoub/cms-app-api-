@@ -1,9 +1,9 @@
-package com.bithumbsystems.cms.api.service.operator
+package com.bithumbsystems.cms.api.config.operator
 
+import com.bithumbsystems.cms.api.model.enums.ErrorCode
+import com.bithumbsystems.cms.api.model.enums.ResponseCode
 import com.bithumbsystems.cms.api.model.response.ErrorData
 import com.bithumbsystems.cms.api.model.response.Response
-import com.bithumbsystems.cms.persistence.mongo.enums.ErrorCode
-import com.bithumbsystems.cms.persistence.mongo.enums.ResponseCode
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.coroutines.runSuspendCatching
 import com.github.michaelbull.result.fold

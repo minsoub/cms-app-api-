@@ -1,4 +1,4 @@
-package com.bithumbsystems.cms.persistence.mongo.enums
+package com.bithumbsystems.cms.api.model.enums
 
 enum class ErrorCode(val message: String) {
     UNKNOWN("Unknown Error"),

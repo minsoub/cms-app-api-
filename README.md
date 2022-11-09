@@ -58,12 +58,6 @@ kover
 http://localhost:8080/swagger-ui.html
 ```
 
-### 빌드 정보
-- root에서 실행
-```
-./gradlew :application:api:clean :application:api:bootJar -x test
-```
-
 ### 코루틴 확인
 JVM 옵션을 사용
 ```

@@ -1,7 +1,7 @@
 package com.bithumbsystems.cms.service
 
 import com.bithumbsystems.cms.api.service.BoardService
-import com.bithumbsystems.cms.api.service.operator.RedisOperator
+import com.bithumbsystems.cms.persistence.redis.RedisOperator
 import com.bithumbsystems.cms.persistence.mongo.entity.CmsNotice
 import com.bithumbsystems.cms.persistence.mongo.repository.CmsNoticeRepository
 import io.mockk.coEvery

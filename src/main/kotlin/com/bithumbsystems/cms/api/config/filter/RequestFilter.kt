@@ -1,6 +1,6 @@
 package com.bithumbsystems.cms.api.config.filter
 
-import com.bithumbsystems.cms.api.service.operator.ServiceOperator.CONTEXT_NAME
+import com.bithumbsystems.cms.api.config.operator.ServiceOperator.CONTEXT_NAME
 import com.bithumbsystems.cms.api.util.Logger
 import org.springframework.stereotype.Component
 import org.springframework.web.server.ServerWebExchange
