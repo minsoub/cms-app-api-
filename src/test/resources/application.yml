@@ -1,0 +1,42 @@
+server:
+    shutdown: graceful
+    port: ${server.local.port:8080}
+spring:
+    main:
+        allow-bean-definition-overriding: true
+    devtools:
+        restart:
+            enabled: false
+    data:
+        mongodb:
+            auto-index-creation: true
+            uuid-representation: standard
+            field-naming-strategy: org.springframework.data.mapping.model.SnakeCaseFieldNamingStrategy
+    redis:
+        host: localhost
+        port: 6379
+
+coroutine:
+    io:
+        pool:
+            thread-name-prefix: ${balcony.front.api.coroutine.io.pool.nameprefix:cms-io}
+
+management:
+    endpoints:
+        web:
+            exposure:
+                include: metrics, prometheus, health
+
+logging:
+    level:
+        root: ${cms.app.api.logging.level.root:INFO}
+        org.springframework.data.convert.CustomConversions: ERROR
+        org:
+            springframework:
+                data:
+                    mongodb:
+                        core:
+                            MongoTemplate: ${cms.app.api.logging.level.mongo:INFO}
+        io:
+            spring:
+                cloud: INFO
