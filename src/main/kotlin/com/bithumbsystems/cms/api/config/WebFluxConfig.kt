@@ -1,5 +1,6 @@
 package com.bithumbsystems.cms.api.config
 
+import com.bithumbsystems.cms.api.config.properties.ApplicationProperties
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.PropertyNamingStrategies
@@ -16,12 +17,16 @@ import org.springframework.context.annotation.Primary
 import org.springframework.http.codec.ServerCodecConfigurer
 import org.springframework.http.codec.json.Jackson2JsonDecoder
 import org.springframework.http.codec.json.Jackson2JsonEncoder
+import org.springframework.web.reactive.config.PathMatchConfigurer
 import org.springframework.web.reactive.config.WebFluxConfigurer
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import java.util.*
 
 @Configuration
-class WebFluxConfig : WebFluxConfigurer {
+class WebFluxConfig(
+    private val applicationProperties: ApplicationProperties
+) : WebFluxConfigurer {
 
     companion object {
         const val DATE_TIME_PATTERN = "yyyy-MM-dd HH:mm"
@@ -30,6 +35,12 @@ class WebFluxConfig : WebFluxConfigurer {
     override fun configureHttpMessageCodecs(configurer: ServerCodecConfigurer) {
         configurer.defaultCodecs().jackson2JsonEncoder(Jackson2JsonEncoder(objectMapper()!!))
         configurer.defaultCodecs().jackson2JsonDecoder(Jackson2JsonDecoder(objectMapper()!!))
+    }
+
+    override fun configurePathMatching(configurer: PathMatchConfigurer) {
+        configurer.addPathPrefix("${applicationProperties.prefix}${applicationProperties.version}") { path: Class<*> ->
+            Arrays.stream(applicationProperties.excludePrefixPath).anyMatch { p -> (path.name.indexOf(p) <= 0) }
+        }
     }
 
     @Bean

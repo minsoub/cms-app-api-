@@ -109,3 +109,5 @@ style:
 formatting:
     NoWildcardImports:
         active: false
+    ImportOrdering:
+        active: false

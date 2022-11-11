@@ -90,28 +90,30 @@ detekt {
     config = files("$rootDir/config/detekt.yml")
 }
 
-tasks.getByName<org.springframework.boot.gradle.tasks.bundling.BootJar>("bootJar") {
-    enabled = true
-    mainClass.set("com.bithumbsystems.cms.CmsAppApiApplication")
-}
-
-tasks.jar {
-    enabled = false
-}
-
-tasks.withType<KotlinCompile> {
-    kotlinOptions {
-        freeCompilerArgs = listOf("-Xjsr305=strict")
-        jvmTarget = "17"
+tasks {
+    getByName<org.springframework.boot.gradle.tasks.bundling.BootJar>("bootJar") {
+        enabled = true
+        mainClass.set("com.bithumbsystems.cms.CmsAppApiApplication")
     }
-}
 
-tasks.withType<Test> {
-    useJUnitPlatform()
-}
+    jar {
+        enabled = false
+    }
 
-tasks.getByName<Test>("test") {
-    systemProperty("spring.profiles.active", "test")
+    withType<KotlinCompile> {
+        kotlinOptions {
+            freeCompilerArgs = listOf("-Xjsr305=strict")
+            jvmTarget = "17"
+        }
+    }
+
+    withType<Test> {
+        useJUnitPlatform()
+    }
+
+    getByName<Test>("test") {
+        systemProperty("spring.profiles.active", "test")
+    }
 }
 
 kover {

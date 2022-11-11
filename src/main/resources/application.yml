@@ -19,9 +19,12 @@ spring:
     file: ${instance.pid:8282282}
 
 application:
-  version: /v1
-  prefix: /api
-  exclude-prefix-path: springdoc
+    version: /v1
+    prefix: /api
+    route: /mng
+    exclude-prefix-path: springdoc
+    role-type: USER
+    site-id: 62a15f4ae4129b518b133127
 
 coroutine:
   io:
