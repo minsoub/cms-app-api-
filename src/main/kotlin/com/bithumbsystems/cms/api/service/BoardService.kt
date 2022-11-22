@@ -3,6 +3,7 @@ package com.bithumbsystems.cms.api.service
 import com.bithumbsystems.cms.api.config.operator.ServiceOperator.executeIn
 import com.bithumbsystems.cms.api.model.response.BoardResponse
 import com.bithumbsystems.cms.api.model.response.ErrorData
+import com.bithumbsystems.cms.api.model.response.toEntity
 import com.bithumbsystems.cms.api.model.response.toResponse
 import com.bithumbsystems.cms.persistence.mongo.repository.CmsNoticeRepository
 import com.bithumbsystems.cms.persistence.redis.RedisOperator

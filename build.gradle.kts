@@ -15,7 +15,9 @@ plugins {
 group = "com.bithumbsystems"
 version = "0.0.1-SNAPSHOT"
 java.sourceCompatibility = JavaVersion.VERSION_17
-
+val springVersion = "2.6.7"
+val openapiVersion = "1.6.9"
+val awssdkVersion = "2.18.10"
 repositories {
     mavenCentral()
 }
@@ -23,11 +25,12 @@ repositories {
 dependencies {
     // Spring
     implementation("org.springframework.boot:spring-boot-starter-webflux")
-    implementation("org.springframework.boot:spring-boot-configuration-processor:2.6.7")
+    implementation("org.springframework.boot:spring-boot-configuration-processor:$springVersion")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
+    implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
 
     // Kotlin
-    kapt("org.springframework.boot:spring-boot-configuration-processor:2.6.7")
+    kapt("org.springframework.boot:spring-boot-configuration-processor:$springVersion")
 
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
@@ -38,17 +41,14 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-gradle-plugin")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 
-//    implementation("io.arrow-kt:arrow-core:1.0.1")
-//    implementation("io.arrow-kt:arrow-fx-coroutines:1.0.1")
-
     implementation("com.michael-bull.kotlin-result:kotlin-result:1.1.16")
     implementation("com.michael-bull.kotlin-result:kotlin-result-coroutines:1.1.16")
 
     detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.21.0")
 
     // open api
-    implementation("org.springdoc:springdoc-openapi-webflux-ui:1.6.9")
-    implementation("org.springdoc:springdoc-openapi-kotlin:1.6.9")
+    implementation("org.springdoc:springdoc-openapi-webflux-ui:$openapiVersion")
+    implementation("org.springdoc:springdoc-openapi-kotlin:$openapiVersion")
 
     // netty M1
     runtimeOnly("io.netty:netty-resolver-dns-native-macos:4.1.77.Final:osx-aarch_64")
@@ -62,17 +62,17 @@ dependencies {
 
     implementation("com.google.code.gson:gson:2.9.0")
 
-//    implementation("software.amazon.awssdk:bom:2.18.10")
-//    implementation("software.amazon.awssdk:auth")
-//    implementation("software.amazon.awssdk:aws-core")
-//    implementation("software.amazon.awssdk:kms")
-//
-//    implementation("com.amazonaws:aws-encryption-sdk-java:2.4.0")
-//    implementation("com.amazonaws:aws-java-sdk-kms")
+    implementation("software.amazon.awssdk:bom:$awssdkVersion")
+    implementation("software.amazon.awssdk:aws-core:$awssdkVersion")
+    implementation("software.amazon.awssdk:auth")
+    implementation("software.amazon.awssdk:kms:$awssdkVersion")
+    implementation("software.amazon.awssdk:ssm:$awssdkVersion")
+    implementation("software.amazon.awssdk:s3:$awssdkVersion")
+    implementation("software.amazon.awssdk:netty-nio-client:$awssdkVersion")
 
-//    implementation("io.awspring.cloud:spring-cloud-starter-aws:2.4.1")
-//    implementation("io.awspring.cloud:spring-cloud-starter-aws-parameter-store-config:2.4.1")
-
+    implementation("io.awspring.cloud:spring-cloud-starter-aws:2.4.1")
+    implementation("io.awspring.cloud:spring-cloud-starter-aws-messaging:2.4.1")
+    implementation("io.awspring.cloud:spring-cloud-starter-aws-parameter-store-config:2.4.1")
     // test
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
         exclude(group = "org.junit.vintage", module = "junit-vintage-engine")

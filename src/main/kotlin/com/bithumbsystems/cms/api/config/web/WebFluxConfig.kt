@@ -1,6 +1,5 @@
-package com.bithumbsystems.cms.api.config
+package com.bithumbsystems.cms.api.config.web
 
-import com.bithumbsystems.cms.api.config.properties.ApplicationProperties
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.PropertyNamingStrategies
@@ -10,6 +9,7 @@ import com.fasterxml.jackson.databind.module.SimpleModule
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.swagger.v3.core.jackson.ModelResolver
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -38,7 +38,9 @@ class WebFluxConfig(
     }
 
     override fun configurePathMatching(configurer: PathMatchConfigurer) {
-        configurer.addPathPrefix("${applicationProperties.prefix}${applicationProperties.version}") { path: Class<*> ->
+        configurer.addPathPrefix(
+            "${applicationProperties.prefix}${applicationProperties.version}${applicationProperties.route}"
+        ) { path: Class<*> ->
             Arrays.stream(applicationProperties.excludePrefixPath).anyMatch { p -> (path.name.indexOf(p) <= 0) }
         }
     }
@@ -51,7 +53,7 @@ class WebFluxConfig(
             DateTimeFormatter.ofPattern(DATE_TIME_PATTERN)
         )
         val localDateTimeDeserializer = LocalDateTimeDeserializer(DateTimeFormatter.ofPattern(DATE_TIME_PATTERN))
-        val objectMapper = ObjectMapper()
+        val objectMapper = jacksonObjectMapper()
         val simpleModule = SimpleModule()
         val stringDeserializer = StringDeserializer()
 
@@ -61,6 +63,7 @@ class WebFluxConfig(
         objectMapper.registerModule(module)
         objectMapper.registerModule(simpleModule)
         objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+        objectMapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS)
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
         objectMapper.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true)
         objectMapper.propertyNamingStrategy = PropertyNamingStrategies.SNAKE_CASE

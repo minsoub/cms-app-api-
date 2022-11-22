@@ -41,7 +41,7 @@ class BoardServiceTests {
     @Test
     fun `redis 에서 top cmsNotice 성공적으로 가져오기`() = runTest {
         val topCmpNotice = CmsNotice(
-            categoryId = "NOTICE",
+            categoryId = listOf("NOTICE"),
             title = "test board",
             content = "contents blah",
             shareTitle = "",
@@ -68,7 +68,7 @@ class BoardServiceTests {
     fun `mongo 에서 cmsNotice 성공적으로 가져오기`() = runTest {
         val id = "1"
         val topCmpNotice = CmsNotice(
-            categoryId = "NOTICE",
+            categoryId = listOf("NOTICE"),
             title = "test board",
             content = "contents blah",
             shareTitle = "",

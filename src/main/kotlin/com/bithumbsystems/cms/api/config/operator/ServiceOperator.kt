@@ -77,7 +77,7 @@ object ServiceOperator {
         validator: suspend () -> Boolean,
         action: suspend () -> T?
     ): Result<T?, ErrorData> = runSuspendCatching {
-        check(validator())
+        require(validator())
         action()
     }.mapError {
         errorHandler(it)
@@ -87,6 +87,17 @@ object ServiceOperator {
         action: suspend () -> T?
     ): Result<T?, ErrorData> = runSuspendCatching {
         action()
+    }.mapError {
+        errorHandler(it)
+    }
+
+    suspend fun <T> executeIn(
+        dispatcher: CoroutineDispatcher,
+        action: suspend () -> T?
+    ): Result<T?, ErrorData> = runSuspendCatching {
+        withContext(dispatcher) {
+            action()
+        }
     }.mapError {
         errorHandler(it)
     }

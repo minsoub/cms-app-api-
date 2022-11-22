@@ -1,52 +1,90 @@
 server:
-  shutdown: graceful
-  port: ${SERVER_LOCAL_PORT:8080}
+    shutdown: graceful
+    port: ${SERVER_LOCAL_PORT:8080}
 spring:
-  main:
-    allow-bean-definition-overriding: true
-  devtools:
-    restart:
-      enabled: false
-  data:
-    mongodb:
-      auto-index-creation: true
-      uuid-representation: standard
-      field-naming-strategy: org.springframework.data.mapping.model.SnakeCaseFieldNamingStrategy
-  redis:
-      host: localhost
-      port: 6379
-  pid:
-    file: ${instance.pid:8282282}
+    main:
+        allow-bean-definition-overriding: true
+    devtools:
+        restart:
+            enabled: false
+    data:
+        mongodb:
+            auto-index-creation: true
+            uuid-representation: standard
+            field-naming-strategy: org.springframework.data.mapping.model.SnakeCaseFieldNamingStrategy
+            uri: localhost
+            port: 27017
+            username: cms-systems
+            database: smartcmslocaldb
+            password:
+    redis:
+        host: localhost
+        port: 6379
+    pid:
+        file: ${instance.pid:8282282}
 
 application:
     version: /v1
     prefix: /api
     route: /mng
     exclude-prefix-path: springdoc
-    role-type: USER
-    site-id: 62a15f4ae4129b518b133127
+    role-type: ADMIN
+    site-id: 62a15f4ae4129b518b133129
 
 coroutine:
-  io:
-    pool:
-      thread-name-prefix: ${balcony.front.api.coroutine.io.pool.nameprefix:cms-io}
+    io:
+        pool:
+            thread-name-prefix: ${balcony.front.api.coroutine.io.pool.nameprefix:cms-io}
 
 management:
-  endpoints:
-    web:
-      exposure:
-        include: metrics, prometheus, health
+    endpoints:
+        web:
+            exposure:
+                include: metrics, prometheus, health
 
 logging:
-  level:
-    root: ${cms.app.api.logging.level.root:DEBUG}
-    org.springframework.data.convert.CustomConversions: ERROR
-    org:
-      springframework:
-        data:
-          mongodb:
-            core:
-              MongoTemplate: ${cms.app.api.logging.level.mongo:DEBUG}
-    io:
-      spring:
-        cloud: INFO
+    level:
+        root: ${cms.app.api.logging.level.root:DEBUG}
+        org.springframework.data.convert.CustomConversions: ERROR
+        org:
+            springframework:
+                data:
+                    mongodb:
+                        core:
+                            MongoTemplate: ${cms.app.api.logging.level.mongo:DEBUG}
+        io:
+            spring:
+                cloud: INFO
+
+cloud:
+    aws:
+        param-store:
+            prefix: /cms
+            smart-prefix: /smartadmin
+            doc-name: mongodb
+            kms-name: kms
+            auth-name: auth
+            crypto-name: crypto
+            salt-name: salt
+            iv-name: iv
+            redis-name: redis
+
+---
+spring:
+    config:
+        import: classpath:aws-properties.yml
+        activate:
+            on-profile: local
+---
+spring:
+    config:
+        import: classpath:aws-properties-dev.yml
+        activate:
+            on-profile: dev
+
+---
+spring:
+    config:
+        import: classpath:aws-properties-eks-dev.yml
+        activate:
+            on-profile: eks-dev
