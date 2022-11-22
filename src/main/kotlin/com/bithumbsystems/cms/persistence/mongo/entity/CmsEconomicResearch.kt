@@ -3,18 +3,16 @@ package com.bithumbsystems.cms.persistence.mongo.entity
 import org.springframework.data.mongodb.core.mapping.Document
 import org.springframework.data.mongodb.core.mapping.MongoId
 import java.time.LocalDateTime
-import java.util.*
 
-@Document("cms_notice")
-class CmsNotice(
+@Document("cms_economic_research")
+class CmsEconomicResearch(
     @MongoId
     val id: String,
-    val categoryId: List<String>,
     val title: String,
     val isFixTop: Boolean = false,
     val isShow: Boolean = true,
     val isDelete: Boolean = false,
-    val isBanner: Boolean = false,
+    val thumbnailFileId: String? = null,
     val content: String,
     val fileId: String? = null,
     val shareTitle: String? = null,
