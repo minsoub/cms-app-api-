@@ -2,34 +2,43 @@ package com.bithumbsystems.cms.api.model.response
 
 import com.bithumbsystems.cms.persistence.mongo.entity.CmsNotice
 import java.time.LocalDateTime
-import java.time.ZoneOffset
+import java.util.*
 
 data class BoardResponse(
+    val id: String = UUID.randomUUID().toString(),
     val categoryId: List<String>,
     val title: String,
     val isFixTop: Boolean = false,
     val isShow: Boolean = true,
     val isDelete: Boolean = false,
     val isBanner: Boolean = false,
-    val content: String? = null,
+    val content: String,
     val fileId: String? = null,
     val shareTitle: String? = null,
     val shareDescription: String? = null,
     val shareFileId: String? = null,
     val shareButtonName: String? = null,
     val isSchedule: Boolean = false,
-    val scheduleDate: Long? = LocalDateTime.now().toEpochSecond(ZoneOffset.UTC),
+    val scheduleDate: LocalDateTime? = null,
     val isDraft: Boolean = false,
+    val readCount: Long = 0,
     val createAccountId: String,
-    val createDate: Long? = LocalDateTime.now().toEpochSecond(ZoneOffset.UTC)
+    val createDate: LocalDateTime = LocalDateTime.now(),
+    val updateAccountId: String? = null,
+    val updateDate: LocalDateTime? = null,
+    val useUpdateDate: Boolean = false,
+    val isAlignTop: Boolean = false,
+    val screenDate: LocalDateTime
 )
 
 fun BoardResponse.toEntity() = CmsNotice(
-    categoryId, title, isFixTop, isShow, isDelete, isBanner, content, fileId,
-    shareTitle, shareDescription, shareFileId, shareButtonName, isSchedule, scheduleDate, isDraft, createAccountId
+    id, categoryId, title, isFixTop, isShow, isDelete, isBanner, content, fileId, shareTitle,
+    shareDescription, shareFileId, shareButtonName, isSchedule, scheduleDate, isDraft, readCount,
+    createAccountId, createDate, updateAccountId, updateDate, useUpdateDate, isAlignTop, screenDate
 )
 
 fun CmsNotice.toResponse() = BoardResponse(
-    categoryId, title, isFixTop, isShow, isDelete, isBanner, content, fileId,
-    shareTitle, shareDescription, shareFileId, shareButtonName, isSchedule, scheduleDate, isDraft, createAccountId
+    id, categoryId, title, isFixTop, isShow, isDelete, isBanner, content, fileId, shareTitle,
+    shareDescription, shareFileId, shareButtonName, isSchedule, scheduleDate, isDraft, readCount,
+    createAccountId, createDate, updateAccountId, updateDate, useUpdateDate, isAlignTop, screenDate
 )

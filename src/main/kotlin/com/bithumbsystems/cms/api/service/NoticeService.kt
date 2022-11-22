@@ -10,6 +10,7 @@ import com.github.michaelbull.result.Result
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
 import org.springframework.stereotype.Service
+import java.time.LocalDateTime
 
 @Service
 class NoticeService(
@@ -28,7 +29,13 @@ class NoticeService(
         executeIn(
             action = {
                 cmsNoticeRepository.save(
-                    CmsNotice(title = "test", categoryId = listOf("test"), createAccountId = "testAccount")
+                    CmsNotice(
+                        title = "test_title",
+                        categoryId = listOf("test_category"),
+                        createAccountId = "test_account",
+                        screenDate = LocalDateTime.now(),
+                        content = "test_content"
+                    )
                 ).toResponse()
             }
         )

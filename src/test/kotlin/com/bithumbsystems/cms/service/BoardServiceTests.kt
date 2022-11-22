@@ -14,7 +14,6 @@ import org.amshove.kluent.`should be equal to`
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.time.LocalDateTime
-import java.time.ZoneOffset
 
 class BoardServiceTests {
 
@@ -47,7 +46,8 @@ class BoardServiceTests {
             shareTitle = "",
             shareDescription = "",
             createAccountId = "you",
-            createDate = LocalDateTime.now().toEpochSecond(ZoneOffset.UTC)
+            createDate = LocalDateTime.now(),
+            screenDate = LocalDateTime.now()
         )
 
         coEvery {
@@ -74,7 +74,8 @@ class BoardServiceTests {
             shareTitle = "",
             shareDescription = "",
             createAccountId = "you",
-            createDate = LocalDateTime.now().toEpochSecond(ZoneOffset.UTC)
+            createDate = LocalDateTime.now(),
+            screenDate = LocalDateTime.now()
         )
 
         coEvery {

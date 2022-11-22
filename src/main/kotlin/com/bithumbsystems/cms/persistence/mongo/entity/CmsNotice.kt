@@ -8,7 +8,7 @@ import java.util.*
 @Document("cms_notice")
 class CmsNotice(
     @MongoId
-    val id: String,
+    val id: String = UUID.randomUUID().toString(),
     val categoryId: List<String>,
     val title: String,
     val isFixTop: Boolean = false,
