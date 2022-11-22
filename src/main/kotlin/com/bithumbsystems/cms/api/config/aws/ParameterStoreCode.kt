@@ -10,6 +10,5 @@ enum class ParameterStoreCode(val value: String) {
     REDIS_PORT("port"),
     REDIS_TOKEN("token"),
     KMS_ALIAS_NAME("key"),
-    JWT_SECRET_KEY("jwt_secret_key"),
     CRYPTO_KEY("key")
 }

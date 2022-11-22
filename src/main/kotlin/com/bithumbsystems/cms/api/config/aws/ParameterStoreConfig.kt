@@ -85,12 +85,6 @@ class ParameterStoreConfig(
                 parameterStoreProperties.ivName,
                 ParameterStoreCode.KMS_ALIAS_NAME.value
             )
-        awsProperties.jwtSecretKey =
-            getParameterValue(
-                parameterStoreProperties.smartPrefix,
-                parameterStoreProperties.authName,
-                ParameterStoreCode.JWT_SECRET_KEY.value
-            )
         awsProperties.cryptoKey =
             getParameterValue(
                 parameterStoreProperties.smartPrefix,

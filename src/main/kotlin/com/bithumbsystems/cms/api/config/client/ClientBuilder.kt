@@ -1,6 +1,5 @@
 package com.bithumbsystems.cms.api.config.client
 
-import com.amazonaws.services.sqs.AmazonSQSAsync
 import com.bithumbsystems.cms.api.config.aws.AwsProperties
 import com.mongodb.MongoClientSettings
 import com.mongodb.reactivestreams.client.MongoClient
@@ -16,5 +15,4 @@ interface ClientBuilder {
     fun buildKms(awsProperties: AwsProperties): KmsAsyncClient
     fun buildMongo(mongoClientSettings: MongoClientSettings): MongoClient
     fun buildRedis(config: Config): RedissonReactiveClient
-    fun buildSqs(awsProperties: AwsProperties): AmazonSQSAsync
 }

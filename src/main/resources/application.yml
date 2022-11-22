@@ -63,7 +63,6 @@ cloud:
             smart-prefix: /smartadmin
             doc-name: mongodb
             kms-name: kms
-            auth-name: auth
             crypto-name: crypto
             salt-name: salt
             iv-name: iv

@@ -1,6 +1,6 @@
 package com.bithumbsystems.cms.api.controller
 
-import com.bithumbsystems.cms.api.config.operator.ServiceOperator
+import com.bithumbsystems.cms.api.config.operator.ServiceOperator.execute
 import com.bithumbsystems.cms.api.model.response.Response
 import com.bithumbsystems.cms.api.service.NoticeService
 import org.springframework.http.ResponseEntity
@@ -16,12 +16,12 @@ class NoticeController(
 ) {
 
     @GetMapping()
-    suspend fun getAll(): ResponseEntity<Response<Any>> = ServiceOperator.execute {
+    suspend fun getAll(): ResponseEntity<Response<Any>> = execute {
         noticeService.getAll()
     }
 
     @PostMapping()
-    suspend fun insertOne(): ResponseEntity<Response<Any>> = ServiceOperator.execute {
+    suspend fun insertOne(): ResponseEntity<Response<Any>> = execute {
         noticeService.insertOne()
     }
 }

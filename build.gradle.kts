@@ -27,7 +27,6 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-webflux")
     implementation("org.springframework.boot:spring-boot-configuration-processor:$springVersion")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
-    implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
 
     // Kotlin
     kapt("org.springframework.boot:spring-boot-configuration-processor:$springVersion")
@@ -93,7 +92,7 @@ detekt {
 tasks {
     getByName<org.springframework.boot.gradle.tasks.bundling.BootJar>("bootJar") {
         enabled = true
-        mainClass.set("com.bithumbsystems.cms.CmsAppApiApplication")
+        mainClass.set("com.bithumbsystems.cms.CmsAppApiApplicationKt")
     }
 
     jar {
