@@ -1,6 +1,7 @@
 package com.bithumbsystems.cms.api.config.client.impl
 
 import com.bithumbsystems.cms.api.config.aws.AwsProperties
+import com.bithumbsystems.cms.api.config.aws.ParameterStoreConfig
 import com.bithumbsystems.cms.api.config.client.ClientBuilder
 import com.mongodb.MongoClientSettings
 import com.mongodb.reactivestreams.client.MongoClient
@@ -35,5 +36,15 @@ class ClientBuilderImpl : ClientBuilder {
     override fun buildMongo(mongoClientSettings: MongoClientSettings): MongoClient =
         MongoClients.create(mongoClientSettings)
 
-    override fun buildRedis(config: Config): RedissonReactiveClient = Redisson.create(config).reactive()
+    @Bean
+    fun redissonReactiveClient(parameterStoreConfig: ParameterStoreConfig): RedissonReactiveClient {
+        val config = Config()
+        val redisPort = parameterStoreConfig.redisProperties.port
+
+        config.useSingleServer().address = "redis://${parameterStoreConfig.redisProperties.host}:$redisPort"
+        if (!parameterStoreConfig.redisProperties.token.isNullOrEmpty()) {
+            config.useSingleServer().password = parameterStoreConfig.redisProperties.token
+        }
+        return Redisson.create(config).reactive()
+    }
 }

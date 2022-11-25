@@ -5,9 +5,6 @@ import com.bithumbsystems.cms.api.config.client.ClientBuilder
 import com.mongodb.MongoClientSettings
 import com.mongodb.reactivestreams.client.MongoClient
 import com.mongodb.reactivestreams.client.MongoClients
-import org.redisson.Redisson
-import org.redisson.api.RedissonReactiveClient
-import org.redisson.config.Config
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Profile
 import org.springframework.stereotype.Component
@@ -42,6 +39,4 @@ class LocalClientBuilderImpl : ClientBuilder {
             .build()
 
     override fun buildMongo(mongoClientSettings: MongoClientSettings): MongoClient = MongoClients.create()
-
-    override fun buildRedis(config: Config): RedissonReactiveClient = Redisson.create().reactive()
 }
