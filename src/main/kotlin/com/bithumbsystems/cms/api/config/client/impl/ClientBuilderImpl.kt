@@ -42,10 +42,14 @@ class ClientBuilderImpl : ClientBuilder {
     fun redissonReactiveClient(parameterStoreConfig: ParameterStoreConfig): RedissonReactiveClient {
         val config = Config()
         val redisPort = parameterStoreConfig.redisProperties.port
-        config.useClusterServers().nodeAddresses = listOf("rediss://${parameterStoreConfig.redisProperties.host}:$redisPort")
+        config.useMasterSlaveServers().masterAddress = "rediss://${parameterStoreConfig.redisProperties.host}:$redisPort"
+        config.useMasterSlaveServers().addSlaveAddress(
+            "rediss://cms-mng-redis-dev-cluster-002.cms-mng-redis-dev-cluster.lzkppx.apn2.cache.amazonaws.com:6379",
+            "rediss://cms-mng-redis-dev-cluster-003.cms-mng-redis-dev-cluster.lzkppx.apn2.cache.amazonaws.com:6379"
+        )
         logger.info("RedisPassword : ${parameterStoreConfig.redisProperties.token}")
         parameterStoreConfig.redisProperties.token?.let {
-            config.useClusterServers().password = it
+            config.useMasterSlaveServers().password = it
         }
 
         return Redisson.create(config).reactive()
