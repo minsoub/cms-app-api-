@@ -7,16 +7,10 @@ import com.bithumbsystems.cms.api.util.Logger
 import com.mongodb.MongoClientSettings
 import com.mongodb.reactivestreams.client.MongoClient
 import com.mongodb.reactivestreams.client.MongoClients
-import org.springframework.beans.factory.annotation.Qualifier
+import org.redisson.Redisson
+import org.redisson.api.RedissonReactiveClient
+import org.redisson.config.Config
 import org.springframework.context.annotation.Bean
-import org.springframework.context.annotation.Primary
-import org.springframework.data.redis.connection.ReactiveRedisConnectionFactory
-import org.springframework.data.redis.connection.RedisConfiguration
-import org.springframework.data.redis.connection.RedisPassword
-import org.springframework.data.redis.connection.RedisStandaloneConfiguration
-import org.springframework.data.redis.connection.lettuce.LettuceClientConfiguration
-import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory
-import org.springframework.data.redis.core.ReactiveStringRedisTemplate
 import org.springframework.stereotype.Component
 import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.services.kms.KmsAsyncClient
@@ -44,40 +38,40 @@ class ClientBuilderImpl : ClientBuilder {
     override fun buildMongo(mongoClientSettings: MongoClientSettings): MongoClient =
         MongoClients.create(mongoClientSettings)
 
-//    @Bean
-//    fun redissonReactiveClient(parameterStoreConfig: ParameterStoreConfig): RedissonReactiveClient {
-//        val config = Config()
-//        val redisPort = parameterStoreConfig.redisProperties.port
-//        config.useSingleServer().address = "redis://${parameterStoreConfig.redisProperties.host}:$redisPort"
-//        logger.info("RedisPassword : ${parameterStoreConfig.redisProperties.token}")
-//        parameterStoreConfig.redisProperties.token?.let {
-//            config.useSingleServer().password = it
-//        }
+    @Bean
+    fun redissonReactiveClient(parameterStoreConfig: ParameterStoreConfig): RedissonReactiveClient {
+        val config = Config()
+        val redisPort = parameterStoreConfig.redisProperties.port
+        config.useClusterServers().nodeAddresses = listOf("rediss://${parameterStoreConfig.redisProperties.host}:$redisPort")
+        logger.info("RedisPassword : ${parameterStoreConfig.redisProperties.token}")
+        parameterStoreConfig.redisProperties.token?.let {
+            config.useClusterServers().password = it
+        }
+
+        return Redisson.create(config).reactive()
+    }
 //
-//        return Redisson.create(config).reactive()
+//    @Bean
+//    @Primary
+//    fun defaultRedisConfig(parameterStoreConfig: ParameterStoreConfig): RedisConfiguration {
+//        val config = RedisStandaloneConfiguration()
+//        config.hostName = parameterStoreConfig.redisProperties.host
+//        config.port = parameterStoreConfig.redisProperties.port
+//        config.password = RedisPassword.of(parameterStoreConfig.redisProperties.token)
+//        return config
 //    }
-
-    @Bean
-    @Primary
-    fun defaultRedisConfig(parameterStoreConfig: ParameterStoreConfig): RedisConfiguration {
-        val config = RedisStandaloneConfiguration()
-        config.hostName = parameterStoreConfig.redisProperties.host
-        config.port = parameterStoreConfig.redisProperties.port
-        config.password = RedisPassword.of(parameterStoreConfig.redisProperties.token)
-        return config
-    }
-
-    @Bean
-    @Primary
-    fun reactiveRedisConnectionFactory(defaultRedisConfig: RedisConfiguration): ReactiveRedisConnectionFactory {
-        val clientConfig = LettuceClientConfiguration.builder()
-            .useSsl().build()
-        return LettuceConnectionFactory(defaultRedisConfig, clientConfig)
-    }
-
-    @Primary
-    @Bean
-    fun reactiveRedisTemplate(@Qualifier("reactiveRedisConnectionFactory") factory: ReactiveRedisConnectionFactory): ReactiveStringRedisTemplate? {
-        return ReactiveStringRedisTemplate(factory)
-    }
+//
+//    @Bean
+//    @Primary
+//    fun reactiveRedisConnectionFactory(defaultRedisConfig: RedisConfiguration): ReactiveRedisConnectionFactory {
+//        val clientConfig = LettuceClientConfiguration.builder()
+//            .useSsl().build()
+//        return LettuceConnectionFactory(defaultRedisConfig, clientConfig)
+//    }
+//
+//    @Primary
+//    @Bean
+//    fun reactiveRedisTemplate(@Qualifier("reactiveRedisConnectionFactory") factory: ReactiveRedisConnectionFactory): ReactiveStringRedisTemplate? {
+//        return ReactiveStringRedisTemplate(factory)
+//    }
 }
