@@ -11,6 +11,7 @@ import org.redisson.Redisson
 import org.redisson.api.RedissonReactiveClient
 import org.redisson.config.Config
 import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Profile
 import org.springframework.stereotype.Component
 import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.services.kms.KmsAsyncClient
@@ -19,7 +20,7 @@ import software.amazon.awssdk.services.ssm.SsmClient
 import java.net.URI
 
 @Component
-//@Profile(value = ["dev", "qa", "prod", "eks-dev"])
+@Profile(value = ["dev", "qa", "prod", "eks-dev"])
 class ClientBuilderImpl : ClientBuilder {
     private val logger by Logger()
 
@@ -41,15 +42,15 @@ class ClientBuilderImpl : ClientBuilder {
     @Bean
     fun redissonReactiveClient(parameterStoreConfig: ParameterStoreConfig): RedissonReactiveClient {
         val config = Config()
-        val redisPort = parameterStoreConfig.redisProperties.port
-        config.useMasterSlaveServers().masterAddress = "rediss://${parameterStoreConfig.redisProperties.host}:$redisPort"
-        config.useMasterSlaveServers().addSlaveAddress(
-            "rediss://cms-mng-redis-dev-cluster-002.cms-mng-redis-dev-cluster.lzkppx.apn2.cache.amazonaws.com:6379",
-            "rediss://cms-mng-redis-dev-cluster-003.cms-mng-redis-dev-cluster.lzkppx.apn2.cache.amazonaws.com:6379"
+//        val redisPort = parameterStoreConfig.redisProperties.port
+        config.useReplicatedServers().nodeAddresses = listOf(
+            "redis://cms-mng-redis-dev-cluster-001.cms-mng-redis-dev-cluster.lzkppx.apn2.cache.amazonaws.com:6379",
+            "redis://cms-mng-redis-dev-cluster-002.cms-mng-redis-dev-cluster.lzkppx.apn2.cache.amazonaws.com:6379",
+            "redis://cms-mng-redis-dev-cluster-003.cms-mng-redis-dev-cluster.lzkppx.apn2.cache.amazonaws.com:6379"
         )
         logger.info("RedisPassword : ${parameterStoreConfig.redisProperties.token}")
         parameterStoreConfig.redisProperties.token?.let {
-            config.useMasterSlaveServers().password = it
+            config.useReplicatedServers().password = it
         }
 
         return Redisson.create(config).reactive()
