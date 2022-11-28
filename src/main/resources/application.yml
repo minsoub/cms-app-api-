@@ -9,6 +9,8 @@ spring:
             auto-index-creation: true
             uuid-representation: standard
             field-naming-strategy: org.springframework.data.mapping.model.SnakeCaseFieldNamingStrategy
+            uri: localhost
+            port: 27017
             username: cms-systems
             database: smartcmslocaldb
             password:
