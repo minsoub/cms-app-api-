@@ -2,7 +2,6 @@ package com.bithumbsystems.cms.api.config.aws
 
 import com.bithumbsystems.cms.api.config.client.ClientBuilder
 import com.bithumbsystems.cms.api.config.mongo.MongoProperties
-import com.bithumbsystems.cms.api.config.redis.RedisProperties
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Configuration
 import software.amazon.awssdk.services.ssm.model.GetParameterRequest
@@ -13,7 +12,7 @@ class ParameterStoreConfig(
     parameterStoreProperties: ParameterStoreProperties,
     clientBuilder: ClientBuilder,
     localMongoProperties: MongoProperties,
-    localRedisProperties: RedisProperties,
+//    localRedisProperties: RedisProperties,
     @Value("\${spring.profiles.active}") profile: String
 ) {
     private val ssmClient = clientBuilder.buildSsm(awsProperties)
@@ -48,23 +47,23 @@ class ParameterStoreConfig(
         )
     )
 
-    val redisProperties = if (isLocalOrDefault) localRedisProperties else RedisProperties(
-        getParameterValue(
-            parameterStoreProperties.prefix,
-            parameterStoreProperties.redisName,
-            ParameterStoreCode.REDIS_HOST.value
-        ),
-        getParameterValue(
-            parameterStoreProperties.prefix,
-            parameterStoreProperties.redisName,
-            ParameterStoreCode.REDIS_PORT.value
-        ).toInt(),
-        getParameterValue(
-            parameterStoreProperties.prefix,
-            parameterStoreProperties.redisName,
-            ParameterStoreCode.REDIS_TOKEN.value
-        )
-    )
+//    val redisProperties = if (isLocalOrDefault) localRedisProperties else RedisProperties(
+//        getParameterValue(
+//            parameterStoreProperties.prefix,
+//            parameterStoreProperties.redisName,
+//            ParameterStoreCode.REDIS_HOST.value
+//        ),
+//        getParameterValue(
+//            parameterStoreProperties.prefix,
+//            parameterStoreProperties.redisName,
+//            ParameterStoreCode.REDIS_PORT.value
+//        ).toInt(),
+//        getParameterValue(
+//            parameterStoreProperties.prefix,
+//            parameterStoreProperties.redisName,
+//            ParameterStoreCode.REDIS_TOKEN.value
+//        )
+//    )
 
     init {
         awsProperties.kmsKey =

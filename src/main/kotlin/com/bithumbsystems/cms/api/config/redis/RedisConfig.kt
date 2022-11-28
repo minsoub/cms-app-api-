@@ -1,8 +1,6 @@
 package com.bithumbsystems.cms.api.config.redis
 
 import com.bithumbsystems.cms.api.config.aws.ParameterStoreConfig
-import com.bithumbsystems.cms.api.util.PortCheckUtil.findAvailablePort
-import com.bithumbsystems.cms.api.util.PortCheckUtil.isRunning
 import org.redisson.Redisson
 import org.redisson.api.RedissonReactiveClient
 import org.redisson.config.Config
@@ -26,20 +24,20 @@ class RedisConfig(
     @PostConstruct
     @Throws(IOException::class)
     fun redisServer() {
-        val redisPort =
-            if (isRunning(parameterStoreConfig.redisProperties.port)) findAvailablePort()
-            else parameterStoreConfig.redisProperties.port
+//        val redisPort =
+//            if (isRunning(parameterStoreConfig.redisProperties.port)) findAvailablePort()
+//            else parameterStoreConfig.redisProperties.port
 
         redisServer = RedisServer.builder()
-            .port(redisPort)
+            .port(6379)
             .setting("maxmemory 128M")
             .build()
         redisServer?.start()
 
-        config.useSingleServer().address = "redis://${parameterStoreConfig.redisProperties.host}:$redisPort"
-        parameterStoreConfig.redisProperties.token?.let {
-            config.useSingleServer().password = it
-        }
+//        config.useSingleServer().address = "redis://${parameterStoreConfig.redisProperties.host}:$redisPort"
+//        parameterStoreConfig.redisProperties.token?.let {
+//            config.useSingleServer().password = it
+//        }
     }
 
     @PreDestroy
@@ -49,5 +47,5 @@ class RedisConfig(
 
     @Bean
     fun redissonReactiveClient(): RedissonReactiveClient =
-        Redisson.create(config).reactive()
+        Redisson.create().reactive()
 }

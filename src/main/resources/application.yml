@@ -80,16 +80,16 @@ spring:
         import: classpath:aws-properties-dev.yml
         activate:
             on-profile: dev
-    redis:
-        host: master.cms-mng-redis-dev-cluster.lzkppx.apn2.cache.amazonaws.com
-        port: 6379
+#    redis:
+#        host: master.cms-mng-redis-dev-cluster.lzkppx.apn2.cache.amazonaws.com
+#        port: 6379
 ---
 spring:
     config:
         import: classpath:aws-properties-eks-dev.yml
         activate:
             on-profile: eks-dev
-    redis:
-        host: master.cms-mng-redis-dev-cluster.lzkppx.apn2.cache.amazonaws.com
-        port: 6379
-        token: eyJzdWIiOiJDTVNQSlQiLCJuYW1lIjoiSk1TIiwiaWF0IjoxNTE2MjM5MDIQ.SDo9XHZDsCXGC3aUKJYTtapwKOHnUCXOLIPBYVHY52Q
+#    redis:
+#        host: master.cms-mng-redis-dev-cluster.lzkppx.apn2.cache.amazonaws.com
+#        port: 6379
+#        token: eyJzdWIiOiJDTVNQSlQiLCJuYW1lIjoiSk1TIiwiaWF0IjoxNTE2MjM5MDIQ.SDo9XHZDsCXGC3aUKJYTtapwKOHnUCXOLIPBYVHY52Q
