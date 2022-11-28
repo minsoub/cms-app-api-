@@ -8,7 +8,6 @@ import org.springframework.stereotype.Service
 
 @Service
 class RedisOperator(
-//    private val reactiveRedisTemplate: ReactiveStringRedisTemplate
     private val redissonReactiveClient: RedissonReactiveClient
 ) {
     companion object {
@@ -22,12 +21,4 @@ class RedisOperator(
 
     suspend fun setTopNotice(cmsNotice: CmsNotice): Void? =
         redissonReactiveClient.getBucket<CmsNotice>(TOP_KEY).set(cmsNotice).awaitSingle()
-
-//
-//    suspend fun getTopNotice(): CmsNotice? =
-//        Gson().fromJson(reactiveRedisTemplate.opsForValue().get(TOP_KEY).awaitSingle(), CmsNotice::class.java)
-//
-//    suspend fun setTopNotice(cmsNotice: CmsNotice) {
-//        reactiveRedisTemplate.opsForValue().set(TOP_KEY, Gson().toJson(cmsNotice)).awaitSingle()
-//    }
 }

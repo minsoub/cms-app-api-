@@ -42,37 +42,14 @@ class ClientBuilderImpl : ClientBuilder {
     @Bean
     fun redissonReactiveClient(parameterStoreConfig: ParameterStoreConfig): RedissonReactiveClient {
         val config = Config()
-//        val redisPort = parameterStoreConfig.redisProperties.port
-        config.useClusterServers().nodeAddresses = listOf("redis://cms-redis-dev-cluster.lzkppx.clustercfg.apn2.cache.amazonaws.com:6379")
-//        logger.info("RedisPassword : ${parameterStoreConfig.redisProperties.token}")
-//        parameterStoreConfig.redisProperties.token?.let {
-//            config.useClusterServers().password = it
-//        }
+        val redisHost = parameterStoreConfig.redisProperties.host
+        val redisPort = parameterStoreConfig.redisProperties.port
+        config.useClusterServers().nodeAddresses = listOf("rediss://$redisHost:$redisPort")
+        parameterStoreConfig.redisProperties.token?.let {
+            logger.debug("RedisPassword : ${parameterStoreConfig.redisProperties.token}")
+            config.useClusterServers().password = it
+        }
 
         return Redisson.create(config).reactive()
     }
-//
-//    @Bean
-//    @Primary
-//    fun defaultRedisConfig(parameterStoreConfig: ParameterStoreConfig): RedisConfiguration {
-//        val config = RedisStandaloneConfiguration()
-//        config.hostName = parameterStoreConfig.redisProperties.host
-//        config.port = parameterStoreConfig.redisProperties.port
-//        config.password = RedisPassword.of(parameterStoreConfig.redisProperties.token)
-//        return config
-//    }
-//
-//    @Bean
-//    @Primary
-//    fun reactiveRedisConnectionFactory(defaultRedisConfig: RedisConfiguration): ReactiveRedisConnectionFactory {
-//        val clientConfig = LettuceClientConfiguration.builder()
-//            .useSsl().build()
-//        return LettuceConnectionFactory(defaultRedisConfig, clientConfig)
-//    }
-//
-//    @Primary
-//    @Bean
-//    fun reactiveRedisTemplate(@Qualifier("reactiveRedisConnectionFactory") factory: ReactiveRedisConnectionFactory): ReactiveStringRedisTemplate? {
-//        return ReactiveStringRedisTemplate(factory)
-//    }
 }

@@ -4,19 +4,17 @@ server:
 spring:
     main:
         allow-bean-definition-overriding: true
-    devtools:
-        restart:
-            enabled: false
     data:
         mongodb:
             auto-index-creation: true
             uuid-representation: standard
             field-naming-strategy: org.springframework.data.mapping.model.SnakeCaseFieldNamingStrategy
-            uri: localhost
-            port: 27017
             username: cms-systems
             database: smartcmslocaldb
             password:
+    redis:
+        host: localhost
+        port: 6379
     pid:
         file: ${instance.pid:8282282}
 
@@ -70,26 +68,16 @@ spring:
     config:
         import: classpath:aws-properties.yml
         activate:
-            on-profile: local
-    redis:
-        host: localhost
-        port: 6379
+            on-profile: local, default, test
 ---
 spring:
     config:
         import: classpath:aws-properties-dev.yml
         activate:
             on-profile: dev
-#    redis:
-#        host: master.cms-mng-redis-dev-cluster.lzkppx.apn2.cache.amazonaws.com
-#        port: 6379
 ---
 spring:
     config:
         import: classpath:aws-properties-eks-dev.yml
         activate:
             on-profile: eks-dev
-#    redis:
-#        host: master.cms-mng-redis-dev-cluster.lzkppx.apn2.cache.amazonaws.com
-#        port: 6379
-#        token: eyJzdWIiOiJDTVNQSlQiLCJuYW1lIjoiSk1TIiwiaWF0IjoxNTE2MjM5MDIQ.SDo9XHZDsCXGC3aUKJYTtapwKOHnUCXOLIPBYVHY52Q
