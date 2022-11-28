@@ -89,3 +89,6 @@ spring:
         import: classpath:aws-properties-eks-dev.yml
         activate:
             on-profile: eks-dev
+    redis:
+        host: master.cms-mng-redis-dev-cluster.lzkppx.apn2.cache.amazonaws.com
+        port: 6379
