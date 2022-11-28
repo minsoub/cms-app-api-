@@ -54,7 +54,7 @@ dependencies {
 
     // redis
     implementation("org.springframework.boot:spring-boot-starter-data-redis-reactive")
-    implementation("org.redisson:redisson-spring-boot-starter:3.17.6")
+    implementation("org.redisson:redisson-spring-boot-starter:3.18.0")
     implementation("it.ozimov:embedded-redis:0.7.1")
 
     implementation("org.springframework.boot:spring-boot-starter-data-mongodb-reactive")

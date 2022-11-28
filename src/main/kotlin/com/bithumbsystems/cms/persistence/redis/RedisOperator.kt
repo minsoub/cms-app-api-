@@ -4,12 +4,11 @@ import com.bithumbsystems.cms.persistence.mongo.entity.CmsNotice
 import kotlinx.coroutines.reactor.awaitSingle
 import org.redisson.api.RedissonReactiveClient
 import org.redisson.codec.TypedJsonJacksonCodec
-import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Service
 
 @Service
 class RedisOperator(
-    @Qualifier("redissonReactiveClient") private val redissonReactiveClient: RedissonReactiveClient
+    private val redissonReactiveClient: RedissonReactiveClient
 ) {
     companion object {
         private const val TOP_KEY = "top"
