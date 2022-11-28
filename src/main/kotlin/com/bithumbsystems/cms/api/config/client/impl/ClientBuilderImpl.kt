@@ -11,6 +11,7 @@ import org.redisson.api.RedissonReactiveClient
 import org.redisson.config.Config
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Profile
+import org.springframework.data.redis.connection.RedisPassword
 import org.springframework.stereotype.Component
 import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.services.kms.KmsAsyncClient
@@ -40,10 +41,9 @@ class ClientBuilderImpl : ClientBuilder {
     fun redissonReactiveClient(parameterStoreConfig: ParameterStoreConfig): RedissonReactiveClient {
         val config = Config()
         val redisPort = parameterStoreConfig.redisProperties.port
-
-        config.useSingleServer().address = "redis://${parameterStoreConfig.redisProperties.host}:$redisPort"
+        config.useReplicatedServers().nodeAddresses = listOf("redis://${parameterStoreConfig.redisProperties.host}:$redisPort")
         if (!parameterStoreConfig.redisProperties.token.isNullOrEmpty()) {
-            config.useSingleServer().password = parameterStoreConfig.redisProperties.token
+            config.useReplicatedServers().password = RedisPassword.of(parameterStoreConfig.redisProperties.token).toString()
         }
 
         return Redisson.create(config).reactive()
