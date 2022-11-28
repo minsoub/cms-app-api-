@@ -41,9 +41,9 @@ class ClientBuilderImpl : ClientBuilder {
     fun redissonReactiveClient(parameterStoreConfig: ParameterStoreConfig): RedissonReactiveClient {
         val config = Config()
         val redisPort = parameterStoreConfig.redisProperties.port
-        config.useReplicatedServers().nodeAddresses = listOf("redis://${parameterStoreConfig.redisProperties.host}:$redisPort")
+        config.useSingleServer().address = "redis://${parameterStoreConfig.redisProperties.host}:$redisPort"
         if (!parameterStoreConfig.redisProperties.token.isNullOrEmpty()) {
-            config.useReplicatedServers().password = RedisPassword.of(parameterStoreConfig.redisProperties.token).toString()
+            config.useSingleServer().password = RedisPassword.of(parameterStoreConfig.redisProperties.token).toString()
         }
 
         return Redisson.create(config).reactive()
