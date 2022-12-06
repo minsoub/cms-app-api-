@@ -52,6 +52,7 @@ logging:
         io:
             spring:
                 cloud: INFO
+    config: classpath:logback-spring-${spring.profiles.active}.xml
 
 cloud:
     aws:
