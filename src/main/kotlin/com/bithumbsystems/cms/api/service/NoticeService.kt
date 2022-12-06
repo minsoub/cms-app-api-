@@ -37,24 +37,24 @@ class NoticeService(
                     it.toResponse()
                 }.toList()
 
-                val list = getNoticeListWithCategory(cmsNoticeList)
+//                val list = getNoticeListWithCategory(cmsNoticeList)
 
-                DataResponse(topList, list)
+                DataResponse(topList, cmsNoticeList)
             },
             fallback = {
                 val cmsNoticeTopList = cmsNoticeRepository.findCmsNoticeByIsFixTopAndIsShowOrderByScreenDateDesc().map {
                     it.toResponse()
                 }.toList()
 
-                val topList = getNoticeListWithCategory(cmsNoticeTopList)
+//                val topList = getNoticeListWithCategory(cmsNoticeTopList)
 
                 val cmsNoticeList = cmsNoticeRepository.findCmsNoticeSearchTextAndPaging(categoryId, searchText, pageNo, pageSize).map {
                     it.toResponse()
                 }.toList()
 
-                val list = getNoticeListWithCategory(cmsNoticeList)
+//                val list = getNoticeListWithCategory(cmsNoticeList)
 
-                DataResponse(topList, list)
+                DataResponse(cmsNoticeTopList, cmsNoticeList)
             },
             afterJob = {
             }
@@ -81,18 +81,29 @@ class NoticeService(
             }
         )
 
-    suspend fun getNoticeListWithCategory(boardResponseList: List<BoardResponse>): List<BoardResponse> {
+//    suspend fun getNoticeListWithCategory(boardResponseList: List<BoardResponse>): List<BoardResponse> {
+//
+//        val category = cmsNoticeCategoryRepository.findAll().toList()
+//
+//        boardResponseList.map {
+//            it.categoryNames = category.filter { cmsNoticeCategory ->
+//                it.categoryId!!.contains(cmsNoticeCategory.id)
+//            }.map {
+//                it.name
+//            }
+//        }
+//
+//        return boardResponseList
+//    }
 
-        val category = cmsNoticeCategoryRepository.findAll().toList()
-
-        boardResponseList.map {
-            it.categoryNames = category.filter { cmsNoticeCategory ->
-                it.categoryId!!.contains(cmsNoticeCategory.id)
-            }.map {
-                it.name
+    suspend fun getNoticeCategoryList(): Result<List<NoticeCategoryResponse>?, ErrorData> =
+        executeIn(
+            action = {
+                cmsNoticeCategoryRepository.findAll().map {
+                    it.toResponse()
+                }.toList().sortedBy {
+                    it.id.toInt()
+                }
             }
-        }
-
-        return boardResponseList
-    }
+        )
 }

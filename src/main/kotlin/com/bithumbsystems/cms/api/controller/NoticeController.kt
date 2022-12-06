@@ -1,9 +1,7 @@
 package com.bithumbsystems.cms.api.controller
 
 import com.bithumbsystems.cms.api.config.operator.ServiceOperator.execute
-import com.bithumbsystems.cms.api.model.response.BoardDetailResponse
-import com.bithumbsystems.cms.api.model.response.BoardResponse
-import com.bithumbsystems.cms.api.model.response.Response
+import com.bithumbsystems.cms.api.model.response.*
 import com.bithumbsystems.cms.api.service.NoticeService
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
@@ -71,5 +69,22 @@ class NoticeController(
         id: String
     ): ResponseEntity<Response<Any>> = execute {
         noticeService.getNotice(id)
+    }
+
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200",
+                description = "조회 성공",
+                content = [
+                    Content(schema = Schema(implementation = NoticeCategoryResponse::class))
+                ]
+            )
+        ]
+    )
+    @Operation(method = "get", summary = "카테고리 리스트", description = "카테고리 리스트")
+    @GetMapping("/category")
+    suspend fun noticeCategory(): ResponseEntity<Response<Any>> = execute {
+        noticeService.getNoticeCategoryList()
     }
 }
