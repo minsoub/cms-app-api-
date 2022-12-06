@@ -21,3 +21,8 @@ fun CmsNotice.toResponse() = BoardResponse(
     screenDate = screenDate,
     categoryId = categoryId
 )
+
+data class DataResponse(
+    val fix: List<BoardResponse>,
+    val list: List<BoardResponse>
+)

@@ -22,12 +22,6 @@ import org.springframework.web.bind.annotation.*
 class NoticeController(
     private val noticeService: NoticeService
 ) {
-
-//    @GetMapping("/add")
-//    suspend fun noticeAdd(): ResponseEntity<Response<Any>> = execute {
-//        noticeService.insertOne()
-//    }
-
     @ApiResponses(
         value = [
             ApiResponse(

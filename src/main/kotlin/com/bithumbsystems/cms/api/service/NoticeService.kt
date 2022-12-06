@@ -25,12 +25,11 @@ class NoticeService(
         searchText: String?,
         pageNo: Int,
         pageSize: Int
-    ): Result<Map<String, List<BoardResponse>>?, ErrorData> =
+    ): Result<DataResponse?, ErrorData> =
         executeIn(
             dispatcher = ioDispatcher,
             action = {
-                val result = mutableMapOf<String, List<BoardResponse>>()
-                result["fix"] = redisOperator.getTopNotice().map {
+                val topList = redisOperator.getTopNotice().map {
                     it.toResponse()
                 }.toList()
 
@@ -38,26 +37,24 @@ class NoticeService(
                     it.toResponse()
                 }.toList()
 
-                result["list"] = getNoticeListWithCategory(cmsNoticeList)
+                val list = getNoticeListWithCategory(cmsNoticeList)
 
-                result
+                DataResponse(topList, list)
             },
             fallback = {
-                val result = mutableMapOf<String, List<BoardResponse>>()
-
                 val cmsNoticeTopList = cmsNoticeRepository.findCmsNoticeByIsFixTopAndIsShowOrderByScreenDateDesc().map {
                     it.toResponse()
                 }.toList()
 
-                result["fix"] = getNoticeListWithCategory(cmsNoticeTopList)
+                val topList = getNoticeListWithCategory(cmsNoticeTopList)
 
                 val cmsNoticeList = cmsNoticeRepository.findCmsNoticeSearchTextAndPaging(categoryId, searchText, pageNo, pageSize).map {
                     it.toResponse()
                 }.toList()
 
-                result["list"] = getNoticeListWithCategory(cmsNoticeList)
+                val list = getNoticeListWithCategory(cmsNoticeList)
 
-                result
+                DataResponse(topList, list)
             },
             afterJob = {
             }
@@ -77,7 +74,7 @@ class NoticeService(
                     val fileInfo = cmsFileInfoRepository.findById(it)
 
                     boardDetailResponse.fileSize = fileInfo?.size
-                    boardDetailResponse.fileName = fileInfo?.name + fileInfo?.extension
+                    boardDetailResponse.fileName = "${fileInfo?.name}.${fileInfo?.extension}"
                 }
 
                 boardDetailResponse
