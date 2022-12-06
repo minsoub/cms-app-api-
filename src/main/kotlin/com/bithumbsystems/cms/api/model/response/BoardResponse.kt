@@ -1,44 +1,23 @@
 package com.bithumbsystems.cms.api.model.response
 
 import com.bithumbsystems.cms.persistence.mongo.entity.CmsNotice
+import io.swagger.v3.oas.annotations.media.Schema
 import java.time.LocalDateTime
 import java.util.*
 
+@Schema(description = "게시글 리스트")
 data class BoardResponse(
-    val id: String = UUID.randomUUID().toString(),
-    val categoryId: List<String>,
+    val id: String,
     val title: String,
-    val isFixTop: Boolean = false,
-    val isShow: Boolean = true,
-    val isDelete: Boolean = false,
-    val isBanner: Boolean = false,
-    val content: String,
-    val fileId: String? = null,
-    val shareTitle: String? = null,
-    val shareDescription: String? = null,
-    val shareFileId: String? = null,
-    val shareButtonName: String? = null,
-    val isSchedule: Boolean = false,
-    val scheduleDate: LocalDateTime? = null,
-    val isDraft: Boolean = false,
-    val readCount: Long = 0,
-    val createAccountId: String,
-    val createDate: LocalDateTime = LocalDateTime.now(),
-    val updateAccountId: String? = null,
-    val updateDate: LocalDateTime? = null,
-    val useUpdateDate: Boolean = false,
-    val isAlignTop: Boolean = false,
-    val screenDate: LocalDateTime
-)
-
-fun BoardResponse.toEntity() = CmsNotice(
-    id, categoryId, title, isFixTop, isShow, isDelete, isBanner, content, fileId, shareTitle,
-    shareDescription, shareFileId, shareButtonName, isSchedule, scheduleDate, isDraft, readCount,
-    createAccountId, createDate, updateAccountId, updateDate, useUpdateDate, isAlignTop, screenDate
+    var categoryNames: List<String>? = null,
+    var categoryId: List<String>? = null,
+    val screenDate: LocalDateTime,
+    val thumbnailUrl: String? = null,
 )
 
 fun CmsNotice.toResponse() = BoardResponse(
-    id, categoryId, title, isFixTop, isShow, isDelete, isBanner, content, fileId, shareTitle,
-    shareDescription, shareFileId, shareButtonName, isSchedule, scheduleDate, isDraft, readCount,
-    createAccountId, createDate, updateAccountId, updateDate, useUpdateDate, isAlignTop, screenDate
+    id = id,
+    title = title,
+    screenDate = screenDate,
+    categoryId = categoryId
 )
