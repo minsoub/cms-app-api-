@@ -1,5 +1,5 @@
 stages:          # List of stages for jobs, and their order of execution
-  - compile
+  # - compile
   - test
 
 before_script:
@@ -10,10 +10,10 @@ cache:
     - .gradle/wrapper
     - .gradle/caches
 
-compile:
-  stage: compile
-  script:
-    - ./gradlew assemble
+# compile:
+#   stage: compile
+#   script:
+#     - ./gradlew assemble
 
 code_style:
   stage: test
