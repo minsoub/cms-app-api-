@@ -2,9 +2,6 @@ package com.bithumbsystems.cms.api.config.client.impl
 
 import com.bithumbsystems.cms.api.config.aws.AwsProperties
 import com.bithumbsystems.cms.api.config.client.ClientBuilder
-import com.mongodb.MongoClientSettings
-import com.mongodb.reactivestreams.client.MongoClient
-import com.mongodb.reactivestreams.client.MongoClients
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Profile
 import org.springframework.stereotype.Component
@@ -37,6 +34,4 @@ class LocalClientBuilderImpl : ClientBuilder {
             .endpointOverride(URI.create(awsProperties.kmsEndPoint))
             .credentialsProvider(ProfileCredentialsProvider.create(awsProperties.profileName))
             .build()
-
-    override fun buildMongo(mongoClientSettings: MongoClientSettings): MongoClient = MongoClients.create()
 }

@@ -4,9 +4,6 @@ import com.bithumbsystems.cms.api.config.aws.AwsProperties
 import com.bithumbsystems.cms.api.config.aws.ParameterStoreConfig
 import com.bithumbsystems.cms.api.config.client.ClientBuilder
 import com.bithumbsystems.cms.api.util.Logger
-import com.mongodb.MongoClientSettings
-import com.mongodb.reactivestreams.client.MongoClient
-import com.mongodb.reactivestreams.client.MongoClients
 import org.redisson.Redisson
 import org.redisson.api.RedissonReactiveClient
 import org.redisson.config.Config
@@ -35,9 +32,6 @@ class ClientBuilderImpl : ClientBuilder {
     override fun buildKms(awsProperties: AwsProperties): KmsAsyncClient =
         KmsAsyncClient.builder().region(Region.of(awsProperties.region))
             .endpointOverride(URI.create(awsProperties.kmsEndPoint)).build()
-
-    override fun buildMongo(mongoClientSettings: MongoClientSettings): MongoClient =
-        MongoClients.create(mongoClientSettings)
 
     @Bean
     fun redissonReactiveClient(parameterStoreConfig: ParameterStoreConfig): RedissonReactiveClient {

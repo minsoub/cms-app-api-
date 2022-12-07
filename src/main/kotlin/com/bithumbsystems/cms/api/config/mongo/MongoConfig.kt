@@ -1,14 +1,12 @@
 package com.bithumbsystems.cms.api.config.mongo
 
 import com.bithumbsystems.cms.api.config.aws.ParameterStoreConfig
-import com.bithumbsystems.cms.api.config.client.ClientBuilder
 import com.mongodb.ConnectionString
-import com.mongodb.MongoClientSettings
-import com.mongodb.connection.netty.NettyStreamFactoryFactory
-import com.mongodb.reactivestreams.client.MongoClient
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Primary
+import org.springframework.core.Ordered
+import org.springframework.core.annotation.Order
 import org.springframework.data.mapping.model.SnakeCaseFieldNamingStrategy
 import org.springframework.data.mongodb.ReactiveMongoDatabaseFactory
 import org.springframework.data.mongodb.ReactiveMongoTransactionManager
@@ -28,21 +26,17 @@ import org.springframework.transaction.reactive.TransactionalOperator
 @Configuration
 @EnableReactiveMongoRepositories("com.bithumbsystems.cms.persistence.mongo")
 @EnableTransactionManagement
+@Order(Ordered.LOWEST_PRECEDENCE)
 class MongoConfig(
     val parameterStoreConfig: ParameterStoreConfig,
-    val clientBuilder: ClientBuilder
+    val mongoProperties: MongoProperties
 ) : AbstractReactiveMongoConfiguration() {
 
     override fun getDatabaseName() = parameterStoreConfig.mongoProperties.mongodbName
 
-    override fun reactiveMongoClient(): MongoClient = mongoClient()
-
-    @Bean
-    fun mongoClient(): MongoClient = clientBuilder.buildMongo(configureClientSettings())
-
     @Bean
     override fun reactiveMongoDbFactory(): ReactiveMongoDatabaseFactory {
-        return SimpleReactiveMongoDatabaseFactory(reactiveMongoClient(), databaseName)
+        return SimpleReactiveMongoDatabaseFactory(getConnectionString(mongoProperties))
     }
 
     @Bean
@@ -51,16 +45,10 @@ class MongoConfig(
         mongoConverter: MappingMongoConverter
     ): ReactiveMongoTemplate = ReactiveMongoTemplate(databaseFactory, mongoConverter)
 
-    private fun configureClientSettings(): MongoClientSettings =
-        MongoClientSettings.builder()
-            .streamFactoryFactory(NettyStreamFactoryFactory.builder().build())
-            .applyConnectionString(getConnectionString(parameterStoreConfig.mongoProperties))
-            .build()
-
     private fun getConnectionString(mongoProperties: MongoProperties): ConnectionString =
         ConnectionString(
             "mongodb://${mongoProperties.mongodbUser}:${mongoProperties.mongodbPassword}" +
-                "@${mongoProperties.mongodbUri}:${mongoProperties.mongodbPort}"
+                "@${mongoProperties.mongodbUri}:${mongoProperties.mongodbPort}/$databaseName?authSource=$databaseName?"
         )
 
     @Bean
