@@ -14,8 +14,8 @@ class RedisOperator(
         private const val TOP_KEY = "top"
     }
 
-    suspend fun getTopNotice(): CmsNotice? =
-        redissonReactiveClient.getBucket<CmsNotice>(TOP_KEY, TypedJsonJacksonCodec(CmsNotice::class.java))
+    suspend fun getTopNotice(): List<CmsNotice> =
+        redissonReactiveClient.getBucket<List<CmsNotice>>(TOP_KEY, TypedJsonJacksonCodec(CmsNotice::class.java))
             .get()
             .awaitSingle()
 

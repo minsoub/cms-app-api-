@@ -1,42 +1,109 @@
 package com.bithumbsystems.cms.api.service
 
 import com.bithumbsystems.cms.api.config.operator.ServiceOperator.executeIn
-import com.bithumbsystems.cms.api.model.response.BoardResponse
-import com.bithumbsystems.cms.api.model.response.ErrorData
-import com.bithumbsystems.cms.api.model.response.toResponse
-import com.bithumbsystems.cms.persistence.mongo.entity.CmsNotice
+import com.bithumbsystems.cms.api.model.response.*
+import com.bithumbsystems.cms.persistence.mongo.repository.CmsFileInfoRepository
+import com.bithumbsystems.cms.persistence.mongo.repository.CmsNoticeCategoryRepository
 import com.bithumbsystems.cms.persistence.mongo.repository.CmsNoticeRepository
+import com.bithumbsystems.cms.persistence.redis.RedisOperator
 import com.github.michaelbull.result.Result
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
 import org.springframework.stereotype.Service
-import java.time.LocalDateTime
 
 @Service
 class NoticeService(
-    private val cmsNoticeRepository: CmsNoticeRepository
+    private val ioDispatcher: CoroutineDispatcher,
+    private val cmsNoticeRepository: CmsNoticeRepository,
+    private val cmsNoticeCategoryRepository: CmsNoticeCategoryRepository,
+    private val cmsFileInfoRepository: CmsFileInfoRepository,
+    private val redisOperator: RedisOperator
 ) {
-
-    suspend fun getAll(): Result<List<BoardResponse>?, ErrorData> =
+    suspend fun getNoticeList(
+        categoryId: String?,
+        searchText: String?,
+        pageNo: Int,
+        pageSize: Int
+    ): Result<DataResponse?, ErrorData> =
         executeIn(
+            dispatcher = ioDispatcher,
             action = {
-                cmsNoticeRepository.findAll().map {
+                val topList = redisOperator.getTopNotice().map {
                     it.toResponse()
                 }.toList()
+
+                val cmsNoticeList = cmsNoticeRepository.findCmsNoticeSearchTextAndPaging(categoryId, searchText, pageNo, pageSize).map {
+                    it.toResponse()
+                }.toList()
+
+//                val list = getNoticeListWithCategory(cmsNoticeList)
+
+                DataResponse(topList, cmsNoticeList)
+            },
+            fallback = {
+                val cmsNoticeTopList = cmsNoticeRepository.findCmsNoticeByIsFixTopAndIsShowOrderByScreenDateDesc().map {
+                    it.toResponse()
+                }.toList()
+
+//                val topList = getNoticeListWithCategory(cmsNoticeTopList)
+
+                val cmsNoticeList = cmsNoticeRepository.findCmsNoticeSearchTextAndPaging(categoryId, searchText, pageNo, pageSize).map {
+                    it.toResponse()
+                }.toList()
+
+//                val list = getNoticeListWithCategory(cmsNoticeList)
+
+                DataResponse(cmsNoticeTopList, cmsNoticeList)
+            },
+            afterJob = {
             }
         )
-    suspend fun insertOne(): Result<BoardResponse?, ErrorData> =
+
+    suspend fun getNotice(id: String): Result<BoardDetailResponse?, ErrorData> =
         executeIn(
             action = {
-                cmsNoticeRepository.save(
-                    CmsNotice(
-                        title = "test_title",
-                        categoryId = listOf("test_category"),
-                        createAccountId = "test_account",
-                        screenDate = LocalDateTime.now(),
-                        content = "test_content"
-                    )
-                ).toResponse()
+                val cmsNotice = cmsNoticeRepository.findById(id)
+                val category = cmsNotice?.categoryId?.let { cmsNoticeCategoryRepository.findAllById(it) }
+
+                val boardDetailResponse: BoardDetailResponse? = cmsNotice?.toDetailResponse()
+
+                boardDetailResponse?.categoryNames = category?.map { it.name }?.toList()
+
+                boardDetailResponse?.fileId?.let {
+                    val fileInfo = cmsFileInfoRepository.findById(it)
+
+                    boardDetailResponse.fileSize = fileInfo?.size
+                    boardDetailResponse.fileName = "${fileInfo?.name}.${fileInfo?.extension}"
+                }
+
+                boardDetailResponse
+            }
+        )
+
+//    suspend fun getNoticeListWithCategory(boardResponseList: List<BoardResponse>): List<BoardResponse> {
+//
+//        val category = cmsNoticeCategoryRepository.findAll().toList()
+//
+//        boardResponseList.map {
+//            it.categoryNames = category.filter { cmsNoticeCategory ->
+//                it.categoryId!!.contains(cmsNoticeCategory.id)
+//            }.map {
+//                it.name
+//            }
+//        }
+//
+//        return boardResponseList
+//    }
+
+    suspend fun getNoticeCategoryList(): Result<List<NoticeCategoryResponse>?, ErrorData> =
+        executeIn(
+            action = {
+                cmsNoticeCategoryRepository.findAll().map {
+                    it.toResponse()
+                }.toList().sortedBy {
+                    it.id.toInt()
+                }
             }
         )
 }

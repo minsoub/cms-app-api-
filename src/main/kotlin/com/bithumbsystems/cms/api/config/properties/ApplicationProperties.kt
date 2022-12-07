@@ -10,5 +10,4 @@ class ApplicationProperties(
     val prefix: String,
     val excludePrefixPath: Array<String>,
     val siteId: String,
-    val roleType: String
 )
