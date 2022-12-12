@@ -20,7 +20,7 @@ cache:
 code_style:
   stage: test
   script:
-    - ./gradlew ktlint
+    - ./gradlew cms-app-api:ktlint
   # artifacts:
   #   paths:
   #     - build/ktlint.xml
