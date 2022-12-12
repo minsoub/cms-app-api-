@@ -2,8 +2,8 @@ stages:          # List of stages for jobs, and their order of execution
   # - compile
   - test
 
-before_script:
-  - export JAVA_HOME="/usr/lib/jvm/java-17-amazon-corretto.x86_64"
+# before_script:
+#   - export JAVA_HOME="/usr/lib/jvm/java-17-amazon-corretto.x86_64"
 
 cache:
   paths:
