@@ -1,3 +1,5 @@
+image: java:17-alpine
+
 stages:          # List of stages for jobs, and their order of execution
   # - compile
   - test
