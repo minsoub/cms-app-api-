@@ -18,6 +18,7 @@ cache:
 code_style:
   stage: test
   script:
+    - echo `pwd`
     - ./gradlew ktlint
   # artifacts:
   #   paths:
