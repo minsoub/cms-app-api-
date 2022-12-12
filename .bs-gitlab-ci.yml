@@ -1,4 +1,4 @@
-image: java:17-alpine
+image: eclipse-temurin:17-jdk-alpine
 
 stages:          # List of stages for jobs, and their order of execution
   # - compile
@@ -20,7 +20,6 @@ cache:
 code_style:
   stage: test
   script:
-    - echo `pwd`
     - ./gradlew ktlint
   # artifacts:
   #   paths:
