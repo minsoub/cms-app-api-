@@ -1,34 +1,30 @@
 image: eclipse-temurin:17-jdk-alpine
 
-stages:          # List of stages for jobs, and their order of execution
-  # - compile
+stages:
+  - compile
   - test
 
-# before_script:
-#   - export JAVA_HOME="/usr/lib/jvm/java-17-amazon-corretto.x86_64"
+before_script:
+  - export GRADLE_USER_HOME=`pwd`/.gradle
 
 cache:
   paths:
     - .gradle/wrapper
     - .gradle/caches
 
-# compile:
-#   stage: compile
-#   script:
-#     - ./gradlew assemble
+compile:
+  stage: compile
+  script:
+    - ./gradlew assemble
 
 code_style:
   stage: test
   script:
-    - ./gradlew cms-app-api:ktlint
-  # artifacts:
-  #   paths:
-  #     - build/ktlint.xml
-  #   expire_in: 1 day
+    - ./gradlew ktlintCheck
   allow_failure: false
 
-detekt_job:      # This job runs in the deploy stage.
-  stage: test  # It only runs when *both* jobs in the test stage complete successfully.
+detekt_job:
+  stage: test
   script:
     - ./gradlew detekt
 
@@ -36,4 +32,3 @@ test:
   stage: test
   script:
     - ./gradlew koverVerify
-
