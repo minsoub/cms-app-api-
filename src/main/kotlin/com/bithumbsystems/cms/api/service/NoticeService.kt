@@ -10,6 +10,8 @@ import com.github.michaelbull.result.Result
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
+import org.springframework.data.domain.PageImpl
+import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
 
 @Service
@@ -18,7 +20,7 @@ class NoticeService(
     private val cmsNoticeRepository: CmsNoticeRepository,
     private val cmsNoticeCategoryRepository: CmsNoticeCategoryRepository,
     private val cmsFileInfoRepository: CmsFileInfoRepository,
-    private val redisOperator: RedisOperator
+    private val redisOperator: RedisOperator,
 ) {
     suspend fun getNoticeList(
         categoryId: String?,
@@ -29,32 +31,44 @@ class NoticeService(
         executeIn(
             dispatcher = ioDispatcher,
             action = {
+                val pageable = PageRequest.of(pageNo, pageSize)
+
                 val topList = redisOperator.getTopNotice().map {
                     it.toResponse()
                 }.toList()
 
-                val cmsNoticeList = cmsNoticeRepository.findCmsNoticeSearchTextAndPaging(categoryId, searchText, pageNo, pageSize).map {
+                val cmsNoticeList = cmsNoticeRepository.findCmsNoticeSearchTextAndPaging(categoryId, searchText, pageable).map {
                     it.toResponse()
                 }.toList()
 
-//                val list = getNoticeListWithCategory(cmsNoticeList)
-
-                DataResponse(topList, cmsNoticeList)
+                DataResponse(
+                    topList,
+                    PageImpl(
+                        cmsNoticeList,
+                        pageable,
+                        cmsNoticeRepository.countCmsNoticeSearchTextAndPaging(categoryId, searchText)
+                    )
+                )
             },
             fallback = {
+                val pageable = PageRequest.of(pageNo, pageSize)
+
                 val cmsNoticeTopList = cmsNoticeRepository.findCmsNoticeByIsFixTopAndIsShowOrderByScreenDateDesc().map {
                     it.toResponse()
                 }.toList()
 
-//                val topList = getNoticeListWithCategory(cmsNoticeTopList)
-
-                val cmsNoticeList = cmsNoticeRepository.findCmsNoticeSearchTextAndPaging(categoryId, searchText, pageNo, pageSize).map {
+                val cmsNoticeList = cmsNoticeRepository.findCmsNoticeSearchTextAndPaging(categoryId, searchText, pageable).map {
                     it.toResponse()
                 }.toList()
 
-//                val list = getNoticeListWithCategory(cmsNoticeList)
-
-                DataResponse(cmsNoticeTopList, cmsNoticeList)
+                DataResponse(
+                    cmsNoticeTopList,
+                    PageImpl(
+                        cmsNoticeList,
+                        pageable,
+                        cmsNoticeRepository.countCmsNoticeSearchTextAndPaging(categoryId, searchText)
+                    )
+                )
             },
             afterJob = {
             }

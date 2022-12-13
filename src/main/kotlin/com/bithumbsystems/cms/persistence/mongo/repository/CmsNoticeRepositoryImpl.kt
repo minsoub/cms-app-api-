@@ -15,9 +15,18 @@ class CmsNoticeRepositoryImpl(
     private val mongoTemplate: ReactiveMongoTemplate
 ) : CmsNoticeRepositoryCustom {
 
-    override fun findCmsNoticeSearchTextAndPaging(categoryId: String?, searchText: String?, pageNo: Int, pageSize: Int): Flow<CmsNotice> {
+    override fun findCmsNoticeSearchTextAndPaging(categoryId: String?, searchText: String?, pageable: PageRequest): Flow<CmsNotice> {
+        return mongoTemplate.find(getCmsNoticeSearchTextAndPaging(categoryId, searchText).with(pageable), CmsNotice::class.java).asFlow()
+    }
+
+    override fun countCmsNoticeSearchTextAndPaging(categoryId: String?, searchText: String?): Long {
+        return mongoTemplate.count(getCmsNoticeSearchTextAndPaging(categoryId, searchText), CmsNotice::class.java).block()!!
+    }
+
+    fun getCmsNoticeSearchTextAndPaging(categoryId: String?, searchText: String?): Query {
         val query = Query()
         val criteria = Criteria()
+        val andOperator = mutableListOf<Criteria>()
 
         searchText?.let {
             criteria.orOperator(
@@ -27,21 +36,18 @@ class CmsNoticeRepositoryImpl(
         }
 
         categoryId?.let {
-            query.addCriteria(
-                Criteria.where("category_id").`in`(categoryId)
-            )
+            andOperator.add(Criteria.where("category_id").`in`(categoryId))
         }
 
-        criteria.andOperator(
-            Criteria.where("is_show").`is`(true)
-        )
+        andOperator.add(Criteria.where("is_show").`is`(true))
 
-        val pageable = PageRequest.of(pageNo, pageSize)
+        criteria.andOperator(
+            andOperator
+        )
 
         query.addCriteria(criteria)
         query.with(Sort.by(Sort.Direction.DESC, "screen_date"))
-        query.with(pageable)
 
-        return mongoTemplate.find(query, CmsNotice::class.java).asFlow()
+        return query
     }
 }

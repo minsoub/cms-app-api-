@@ -2,6 +2,7 @@ package com.bithumbsystems.cms.persistence.mongo.repository
 
 import com.bithumbsystems.cms.persistence.mongo.entity.CmsNotice
 import kotlinx.coroutines.flow.Flow
+import org.springframework.data.domain.PageRequest
 import org.springframework.data.repository.kotlin.CoroutineSortingRepository
 import org.springframework.stereotype.Repository
 
@@ -11,5 +12,7 @@ interface CmsNoticeRepository : CoroutineSortingRepository<CmsNotice, String>, C
 }
 
 interface CmsNoticeRepositoryCustom {
-    fun findCmsNoticeSearchTextAndPaging(categoryId: String?, searchText: String?, pageNo: Int, pageSize: Int): Flow<CmsNotice>
+    fun findCmsNoticeSearchTextAndPaging(categoryId: String?, searchText: String?, pageable: PageRequest): Flow<CmsNotice>
+
+    fun countCmsNoticeSearchTextAndPaging(categoryId: String?, searchText: String?): Long
 }
