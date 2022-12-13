@@ -3,9 +3,7 @@ package com.bithumbsystems.cms.api.config.client.impl
 import com.bithumbsystems.cms.api.config.aws.AwsProperties
 import com.bithumbsystems.cms.api.config.aws.ParameterStoreConfig
 import com.bithumbsystems.cms.api.config.client.ClientBuilder
-import com.mongodb.MongoClientSettings
-import com.mongodb.reactivestreams.client.MongoClient
-import com.mongodb.reactivestreams.client.MongoClients
+import com.bithumbsystems.cms.api.util.Logger
 import org.redisson.Redisson
 import org.redisson.api.RedissonReactiveClient
 import org.redisson.config.Config
@@ -21,6 +19,8 @@ import java.net.URI
 @Component
 @Profile(value = ["dev", "qa", "prod", "eks-dev"])
 class ClientBuilderImpl : ClientBuilder {
+    private val logger by Logger()
+
     override fun buildSsm(awsProperties: AwsProperties): SsmClient =
         SsmClient.builder().endpointOverride(URI.create(awsProperties.ssmEndPoint))
             .region(Region.of(awsProperties.region)).build()
@@ -33,17 +33,15 @@ class ClientBuilderImpl : ClientBuilder {
         KmsAsyncClient.builder().region(Region.of(awsProperties.region))
             .endpointOverride(URI.create(awsProperties.kmsEndPoint)).build()
 
-    override fun buildMongo(mongoClientSettings: MongoClientSettings): MongoClient =
-        MongoClients.create(mongoClientSettings)
-
     @Bean
     fun redissonReactiveClient(parameterStoreConfig: ParameterStoreConfig): RedissonReactiveClient {
         val config = Config()
+        val redisHost = parameterStoreConfig.redisProperties.host
         val redisPort = parameterStoreConfig.redisProperties.port
-
-        config.useSingleServer().address = "redis://${parameterStoreConfig.redisProperties.host}:$redisPort"
-        if (!parameterStoreConfig.redisProperties.token.isNullOrEmpty()) {
-            config.useSingleServer().password = parameterStoreConfig.redisProperties.token
+        config.useClusterServers().nodeAddresses = listOf("rediss://$redisHost:$redisPort")
+        parameterStoreConfig.redisProperties.token?.let {
+            logger.debug("RedisPassword : ${parameterStoreConfig.redisProperties.token}")
+            config.useClusterServers().password = it
         }
 
         return Redisson.create(config).reactive()

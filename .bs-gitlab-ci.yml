@@ -1,0 +1,38 @@
+image: eclipse-temurin:17-jdk-alpine
+
+stages:
+  - compile
+  - test
+
+before_script:
+  - export GRADLE_USER_HOME=`pwd`/.gradle
+
+cache:
+  paths:
+    - .gradle/wrapper
+    - .gradle/caches
+
+compile:
+  stage: compile
+  script:
+    - ./gradlew assemble
+
+code_style:
+  stage: test
+  script:
+    - ./gradlew ktlintCheck
+  allow_failure: false
+
+detekt_job:
+  stage: test
+  script:
+    - ./gradlew detekt
+
+test:
+  stage: test
+  script:
+    - ./gradlew koverVerify
+  artifacts:
+    when: always
+    reports:
+      junit: build/test-results/test/**/TEST-*.xml

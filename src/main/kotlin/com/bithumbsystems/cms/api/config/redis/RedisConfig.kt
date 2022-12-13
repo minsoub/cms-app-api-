@@ -37,8 +37,8 @@ class RedisConfig(
         redisServer?.start()
 
         config.useSingleServer().address = "redis://${parameterStoreConfig.redisProperties.host}:$redisPort"
-        if (!parameterStoreConfig.redisProperties.token.isNullOrEmpty()) {
-            config.useSingleServer().password = parameterStoreConfig.redisProperties.token
+        parameterStoreConfig.redisProperties.token?.let {
+            config.useSingleServer().password = it
         }
     }
 
@@ -49,5 +49,5 @@ class RedisConfig(
 
     @Bean
     fun redissonReactiveClient(): RedissonReactiveClient =
-        Redisson.create(config).reactive()
+        Redisson.create().reactive()
 }
