@@ -53,13 +53,15 @@ class NoticeController(
             description = "페이지 번호",
             name = "page_no",
             `in` = ParameterIn.QUERY,
-            schema = Schema(defaultValue = "0", implementation = Int::class)
+            schema = Schema(defaultValue = "0", implementation = Int::class),
+            example = "0"
         ),
         Parameter(
             description = "패아자당 개시글 갯수",
             name = "page_size",
             `in` = ParameterIn.QUERY,
-            schema = Schema(defaultValue = "15", implementation = Int::class)
+            schema = Schema(defaultValue = "15", implementation = Int::class),
+            example = "15"
         ),
     )
     @Operation(method = "get", summary = "공지사항 리스트", description = "공지사항 고정 게시글 및 페이지에 해당하는 게시글 출력")

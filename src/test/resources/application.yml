@@ -1,7 +1,10 @@
 server:
     shutdown: graceful
-    port: ${server.local.port:8080}
+    port: ${SERVER_LOCAL_PORT:8080}
 spring:
+    config:
+        activate:
+            on-profile: test
     main:
         allow-bean-definition-overriding: true
     devtools:
@@ -12,9 +15,23 @@ spring:
             auto-index-creation: true
             uuid-representation: standard
             field-naming-strategy: org.springframework.data.mapping.model.SnakeCaseFieldNamingStrategy
+            uri: localhost
+            port: 27017
+            username: cms-systems
+            database: smartcmslocaldb
+            password:
     redis:
         host: localhost
         port: 6379
+    pid:
+        file: ${instance.pid:8282282}
+
+application:
+    version: /v1
+    prefix: /api
+    route: /cms
+    exclude-prefix-path: springdoc
+    site-id: 62a15f4ae4129b518b133129
 
 coroutine:
     io:
@@ -29,14 +46,39 @@ management:
 
 logging:
     level:
-        root: ${cms.app.api.logging.level.root:INFO}
+        root: ${cms.app.api.logging.level.root:DEBUG}
         org.springframework.data.convert.CustomConversions: ERROR
         org:
             springframework:
                 data:
                     mongodb:
                         core:
-                            MongoTemplate: ${cms.app.api.logging.level.mongo:INFO}
+                            MongoTemplate: ${cms.app.api.logging.level.mongo:DEBUG}
         io:
             spring:
                 cloud: INFO
+
+cloud:
+    aws:
+        param-store:
+            prefix: /cms
+            smart-prefix: /smartadmin
+            doc-name: mongodb
+            kms-name: kms
+            crypto-name: crypto
+            salt-name: salt
+            iv-name: iv
+            redis-name: redis
+        credentials:
+            profile-name: ${aws.default.profile:dev}
+        stack:
+            auto: ${aws.stack.auto:false}
+        s3:
+            bucket: ${aws.s3.bucket:cms-dev-s3-bucket}
+        region:
+            static: ${aws.region:ap-northeast-2}
+            auto: ${aws.region.auto:false}
+        ssm:
+            endpoint: https://ssm.ap-northeast-2.amazonaws.com
+        kms:
+            endpoint: https://kms.ap-northeast-2.amazonaws.com
