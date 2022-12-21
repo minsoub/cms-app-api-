@@ -6,6 +6,8 @@ import com.bithumbsystems.cms.persistence.mongo.repository.CmsFileInfoRepository
 import com.bithumbsystems.cms.persistence.mongo.repository.CmsNoticeCategoryRepository
 import com.bithumbsystems.cms.persistence.mongo.repository.CmsNoticeRepository
 import com.bithumbsystems.cms.persistence.redis.RedisOperator
+import com.bithumbsystems.cms.persistence.redis.model.toNoticeFix
+import com.bithumbsystems.cms.persistence.redis.model.toRedisCategory
 import com.github.michaelbull.result.Result
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.map
@@ -33,16 +35,14 @@ class NoticeService(
             action = {
                 val pageable = PageRequest.of(pageNo, pageSize)
 
-                val topList = redisOperator.getTopNotice().map {
-                    it.toResponse()
-                }.toList()
+                val cmsNoticeTopList: List<BoardResponse> = redisOperator.getTopNotice().map { it.toResponse() }
 
                 val cmsNoticeList = cmsNoticeRepository.findCmsNoticeSearchTextAndPaging(categoryId, searchText, pageable).map {
                     it.toResponse()
                 }.toList()
 
                 DataResponse(
-                    topList,
+                    cmsNoticeTopList,
                     PageImpl(
                         cmsNoticeList,
                         pageable,
@@ -53,9 +53,11 @@ class NoticeService(
             fallback = {
                 val pageable = PageRequest.of(pageNo, pageSize)
 
-                val cmsNoticeTopList = cmsNoticeRepository.findCmsNoticeByIsFixTopAndIsShowOrderByScreenDateDesc().map {
+                var cmsNoticeTopList = cmsNoticeRepository.findCmsNoticeByIsFixTopAndIsShowOrderByScreenDateDesc().map {
                     it.toResponse()
                 }.toList()
+
+                cmsNoticeTopList = getNoticeFixListWithCategory(cmsNoticeTopList)
 
                 val cmsNoticeList = cmsNoticeRepository.findCmsNoticeSearchTextAndPaging(categoryId, searchText, pageable).map {
                     it.toResponse()
@@ -71,6 +73,16 @@ class NoticeService(
                 )
             },
             afterJob = {
+                var noticeFixList = cmsNoticeRepository.findCmsNoticeByIsFixTopAndIsShowOrderByScreenDateDesc().map {
+                    it.toResponse()
+                }.toList()
+
+                noticeFixList = getNoticeFixListWithCategory(noticeFixList)
+
+                val redisNoticeFix = noticeFixList.map {
+                    it.toNoticeFix()
+                }
+                redisOperator.setTopNotice(redisNoticeFix)
             }
         )
 
@@ -95,29 +107,37 @@ class NoticeService(
             }
         )
 
-//    suspend fun getNoticeListWithCategory(boardResponseList: List<BoardResponse>): List<BoardResponse> {
-//
-//        val category = cmsNoticeCategoryRepository.findAll().toList()
-//
-//        boardResponseList.map {
-//            it.categoryNames = category.filter { cmsNoticeCategory ->
-//                it.categoryId!!.contains(cmsNoticeCategory.id)
-//            }.map {
-//                it.name
-//            }
-//        }
-//
-//        return boardResponseList
-//    }
+    suspend fun getNoticeFixListWithCategory(boardResponseList: List<BoardResponse>): List<BoardResponse> {
+
+        val category = cmsNoticeCategoryRepository.findAll().toList()
+
+        boardResponseList.map {
+            it.categoryName = category.filter { cmsNoticeCategory ->
+                it.categoryId!!.contains(cmsNoticeCategory.id)
+            }.map {
+                it.name
+            }
+        }
+        return boardResponseList
+    }
 
     suspend fun getNoticeCategoryList(): Result<List<NoticeCategoryResponse>?, ErrorData> =
         executeIn(
+            dispatcher = ioDispatcher,
             action = {
+                redisOperator.getNoticeCategory()
+            },
+            fallback = {
                 cmsNoticeCategoryRepository.findAll().map {
                     it.toResponse()
-                }.toList().sortedBy {
-                    it.id.toInt()
-                }
+                }.toList()
+            },
+            afterJob = {
+                val categoryList = cmsNoticeCategoryRepository.findAll().map {
+                    it.toRedisCategory()
+                }.toList()
+
+                redisOperator.setNoticeCategory(categoryList)
             }
         )
 }

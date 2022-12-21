@@ -4,6 +4,7 @@ import com.bithumbsystems.cms.api.model.enums.ErrorCode
 import com.bithumbsystems.cms.api.model.enums.ResponseCode
 import com.bithumbsystems.cms.api.model.response.ErrorData
 import com.bithumbsystems.cms.api.model.response.Response
+import com.bithumbsystems.cms.api.util.Logger
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.coroutines.runSuspendCatching
 import com.github.michaelbull.result.fold
@@ -19,6 +20,8 @@ object ServiceOperator {
 
     private val requestIdThreadLocal = ThreadLocal<String>()
     const val CONTEXT_NAME = "CMS_CONTEXT"
+
+    private val logger by Logger()
 
     fun set(requestId: String) {
         requestIdThreadLocal.set(requestId)
@@ -108,12 +111,15 @@ object ServiceOperator {
         fallback: suspend () -> T?,
         afterJob: suspend (T) -> Unit
     ): Result<T?, ErrorData> = runSuspendCatching {
+        logger.info("action start")
         action()
     }.recover {
+        logger.info("fallback start")
         val result = fallback()
         supervisorScope {
             launch(dispatcher) {
                 result?.apply {
+                    logger.info("afterjob start")
                     afterJob(result)
                 }
             }

@@ -1,14 +1,19 @@
 package com.bithumbsystems.cms.api.service
 
+import com.bithumbsystems.cms.api.model.response.toResponse
+import com.bithumbsystems.cms.persistence.mongo.entity.CmsFileInfo
 import com.bithumbsystems.cms.persistence.mongo.entity.CmsNotice
+import com.bithumbsystems.cms.persistence.mongo.entity.CmsNoticeCategory
 import com.bithumbsystems.cms.persistence.mongo.repository.CmsFileInfoRepository
 import com.bithumbsystems.cms.persistence.mongo.repository.CmsNoticeCategoryRepository
 import com.bithumbsystems.cms.persistence.mongo.repository.CmsNoticeRepository
 import com.bithumbsystems.cms.persistence.redis.RedisOperator
+import com.bithumbsystems.cms.persistence.redis.model.RedisNoticeFix
 import io.mockk.*
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.`should be equal to`
 import org.junit.jupiter.api.BeforeAll
@@ -21,6 +26,7 @@ import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import java.time.LocalDateTime
 import java.util.*
+import kotlin.test.assertEquals
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @ActiveProfiles("test")
@@ -50,7 +56,7 @@ class NoticeServiceTest {
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun getNoticeList(): Unit = runTest {
-        val topCmpNotice = CmsNotice(
+        val noticeList = CmsNotice(
             categoryId = listOf("1"),
             title = "test board",
             content = "contents blah",
@@ -60,40 +66,84 @@ class NoticeServiceTest {
             createDate = LocalDateTime.now(),
             screenDate = LocalDateTime.now()
         )
+        val noticeTop = RedisNoticeFix(
+            id = "1",
+            title = "title",
+            screenDate = LocalDateTime.now(),
+            categoryName = listOf("안내")
+        )
 
-        coEvery { cmsNoticeRepository.findCmsNoticeSearchTextAndPaging("", "", PageRequest.of(0, 15)) } returns flowOf(topCmpNotice)
-        coEvery { cmsNoticeRepository.findCmsNoticeByIsFixTopAndIsShowOrderByScreenDateDesc() } returns flowOf(topCmpNotice)
+        coEvery { redisOperator.getTopNotice() } returns listOf(noticeTop)
+        coEvery { cmsNoticeRepository.findCmsNoticeSearchTextAndPaging("", "", PageRequest.of(0, 15)) } returns flowOf(noticeList)
+        coEvery { cmsNoticeRepository.findCmsNoticeByIsFixTopAndIsShowOrderByScreenDateDesc() } returns flowOf(noticeList)
         coEvery { cmsNoticeRepository.countCmsNoticeSearchTextAndPaging("", "") } returns 1
 
-        var result = noticeService.getNoticeList("", "", 0, 15)
+        val result = noticeService.getNoticeList("", "", 0, 15)
 
-        println(result)
+        verify { cmsNoticeRepository.findCmsNoticeSearchTextAndPaging("", "", PageRequest.of(0, 15)) }
+
+        assertEquals(flowOf(noticeList.toResponse()).toList(), result.component1()!!.list.content)
+
+        result.component1()?.list?.content `should be equal to` flowOf(noticeList.toResponse()).toList()
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun getNotice(): Unit = runTest {
         val topCmpNotice = CmsNotice(
-            categoryId = listOf("1"),
+            id = "notice_id",
+            categoryId = listOf("category_id"),
             title = "test board",
             content = "contents blah",
             shareTitle = "",
             shareDescription = "",
             createAccountId = "account_id",
             createDate = LocalDateTime.now(),
-            screenDate = LocalDateTime.now()
+            screenDate = LocalDateTime.now(),
+            fileId = "1"
         )
 
-        coEvery { cmsNoticeRepository.findById("1") } returns topCmpNotice
+        val category = CmsNoticeCategory(
+            id = "category_id",
+            name = "공지사항",
+            createAccountId = "account_id"
+        )
 
-        val result = noticeService.getNotice("1")
+        val fileInfo = CmsFileInfo(
+            id = "file_id",
+            size = 100,
+            name = "file",
+            extension = "jpg",
+            createDate = LocalDateTime.now(),
+            createAccountId = "account_id",
+            createAccountEmail = "a@a.com"
+        )
 
-        result.component1()?.title `should be equal to` null
+        coEvery { cmsNoticeRepository.findById("notice_id") } returns topCmpNotice
+
+        coEvery { cmsNoticeCategoryRepository.findAllById(listOf("category_id")) } returns flowOf(category)
+
+        coEvery { cmsFileInfoRepository.findById("file_id") } returns fileInfo
+
+        val result = noticeService.getNotice("notice_id")
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun getNoticeCategoryList(): Unit = runTest {
-        var result = noticeService.getNoticeCategoryList()
+
+        val category = CmsNoticeCategory(
+            id = "1",
+            name = "공지사항",
+            createAccountId = "account_id"
+        )
+
+        coEvery { cmsNoticeCategoryRepository.findAll() } returns flowOf(category)
+
+        val result = noticeService.getNoticeCategoryList()
+
+        coVerify { cmsNoticeCategoryRepository.findAll() }
+
+        assertEquals(result.component1()?.first()?.id, "1")
     }
 }

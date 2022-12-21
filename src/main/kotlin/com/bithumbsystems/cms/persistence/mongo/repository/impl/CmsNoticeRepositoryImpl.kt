@@ -1,6 +1,7 @@
-package com.bithumbsystems.cms.persistence.mongo.repository
+package com.bithumbsystems.cms.persistence.mongo.repository.impl
 
 import com.bithumbsystems.cms.persistence.mongo.entity.CmsNotice
+import com.bithumbsystems.cms.persistence.mongo.repository.CmsNoticeRepositoryCustom
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.reactive.asFlow
 import org.springframework.data.domain.PageRequest
