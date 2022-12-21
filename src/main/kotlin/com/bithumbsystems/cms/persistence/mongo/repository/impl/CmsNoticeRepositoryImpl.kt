@@ -41,6 +41,7 @@ class CmsNoticeRepositoryImpl(
         }
 
         andOperator.add(Criteria.where("is_show").`is`(true))
+        andOperator.add(Criteria.where("is_fix_top").`is`(false))
 
         criteria.andOperator(
             andOperator
