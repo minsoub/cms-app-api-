@@ -2,6 +2,9 @@ package com.bithumbsystems.cms.api.config.client.impl
 
 import com.bithumbsystems.cms.api.config.aws.AwsProperties
 import com.bithumbsystems.cms.api.config.client.ClientBuilder
+import org.redisson.Redisson
+import org.redisson.api.RedissonReactiveClient
+import org.redisson.config.Config
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Profile
 import org.springframework.stereotype.Component
@@ -34,4 +37,6 @@ class LocalClientBuilderImpl : ClientBuilder {
             .endpointOverride(URI.create(awsProperties.kmsEndPoint))
             .credentialsProvider(ProfileCredentialsProvider.create(awsProperties.profileName))
             .build()
+
+    override fun buildRedis(config: Config): RedissonReactiveClient = Redisson.create().reactive()
 }

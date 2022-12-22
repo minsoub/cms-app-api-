@@ -1,6 +1,7 @@
-package com.bithumbsystems.cms.persistence.mongo.repository
+package com.bithumbsystems.cms.persistence.mongo.repository.impl
 
-import com.bithumbsystems.cms.persistence.mongo.entity.CmsNotice
+import com.bithumbsystems.cms.persistence.mongo.entity.CmsPressRelease
+import com.bithumbsystems.cms.persistence.mongo.repository.CmsPressReleaseRepositoryCustom
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.reactive.asFlow
 import org.springframework.data.domain.PageRequest
@@ -11,11 +12,11 @@ import org.springframework.data.mongodb.core.query.Query
 import org.springframework.stereotype.Repository
 
 @Repository
-class CmsNoticeRepositoryImpl(
+class CmsPressReleaseRepositoryImpl(
     private val mongoTemplate: ReactiveMongoTemplate
-) : CmsNoticeRepositoryCustom {
+) : CmsPressReleaseRepositoryCustom {
 
-    override fun findCmsNoticeSearchTextAndPaging(categoryId: String?, searchText: String?, pageNo: Int, pageSize: Int): Flow<CmsNotice> {
+    override fun findCmsPressReleaseSearchTextAndPaging(searchText: String?, pageNo: Int, pageSize: Int): Flow<CmsPressRelease> {
         val query = Query()
         val criteria = Criteria()
 
@@ -23,12 +24,6 @@ class CmsNoticeRepositoryImpl(
             criteria.orOperator(
                 Criteria.where("title").regex(".*$searchText*.", "i"),
                 Criteria.where("content").regex(".*$searchText*.", "i")
-            )
-        }
-
-        categoryId?.let {
-            query.addCriteria(
-                Criteria.where("category_id").`in`(categoryId)
             )
         }
 
@@ -42,6 +37,6 @@ class CmsNoticeRepositoryImpl(
         query.with(Sort.by(Sort.Direction.DESC, "screen_date"))
         query.with(pageable)
 
-        return mongoTemplate.find(query, CmsNotice::class.java).asFlow()
+        return mongoTemplate.find(query, CmsPressRelease::class.java).asFlow()
     }
 }

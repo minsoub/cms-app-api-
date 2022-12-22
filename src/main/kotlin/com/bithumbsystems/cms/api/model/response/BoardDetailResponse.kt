@@ -1,6 +1,7 @@
 package com.bithumbsystems.cms.api.model.response
 
 import com.bithumbsystems.cms.persistence.mongo.entity.CmsNotice
+import com.bithumbsystems.cms.persistence.mongo.entity.CmsPressRelease
 import io.swagger.v3.oas.annotations.media.Schema
 import java.time.LocalDateTime
 
@@ -26,6 +27,18 @@ fun CmsNotice.toDetailResponse() = BoardDetailResponse(
     title = title,
     screenDate = screenDate,
     categoryId = categoryId,
+    content = content,
+    shareTitle = shareTitle,
+    shareDescription = shareDescription,
+    shareFileId = shareFileId,
+    shareButtonName = shareButtonName,
+    fileId = fileId
+)
+
+fun CmsPressRelease.toDetailResponse() = BoardDetailResponse(
+    id = id,
+    title = title,
+    screenDate = screenDate,
     content = content,
     shareTitle = shareTitle,
     shareDescription = shareDescription,

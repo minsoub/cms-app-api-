@@ -1,6 +1,7 @@
 package com.bithumbsystems.cms.api.config.mongo
 
 import com.bithumbsystems.cms.api.config.aws.ParameterStoreConfig
+import com.bithumbsystems.cms.api.util.Logger
 import com.mongodb.ConnectionString
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -28,15 +29,16 @@ import org.springframework.transaction.reactive.TransactionalOperator
 @EnableTransactionManagement
 @Order(Ordered.LOWEST_PRECEDENCE)
 class MongoConfig(
-    val parameterStoreConfig: ParameterStoreConfig,
-    val mongoProperties: MongoProperties
+    val parameterStoreConfig: ParameterStoreConfig
 ) : AbstractReactiveMongoConfiguration() {
+
+    private val logger by Logger()
 
     override fun getDatabaseName() = parameterStoreConfig.mongoProperties.mongodbName
 
     @Bean
     override fun reactiveMongoDbFactory(): ReactiveMongoDatabaseFactory {
-        return SimpleReactiveMongoDatabaseFactory(getConnectionString(mongoProperties))
+        return SimpleReactiveMongoDatabaseFactory(getConnectionString(parameterStoreConfig.mongoProperties))
     }
 
     @Bean
@@ -45,11 +47,16 @@ class MongoConfig(
         mongoConverter: MappingMongoConverter
     ): ReactiveMongoTemplate = ReactiveMongoTemplate(databaseFactory, mongoConverter)
 
-    private fun getConnectionString(mongoProperties: MongoProperties): ConnectionString =
-        ConnectionString(
+    private fun getConnectionString(mongoProperties: MongoProperties): ConnectionString {
+        logger.info(
             "mongodb://${mongoProperties.mongodbUser}:${mongoProperties.mongodbPassword}" +
-                "@${mongoProperties.mongodbUri}:${mongoProperties.mongodbPort}/$databaseName?authSource=$databaseName?"
+                "@${mongoProperties.mongodbUri}:${mongoProperties.mongodbPort}/$databaseName?authSource=$databaseName"
         )
+        return ConnectionString(
+            "mongodb://${mongoProperties.mongodbUser}:${mongoProperties.mongodbPassword}" +
+                "@${mongoProperties.mongodbUri}:${mongoProperties.mongodbPort}/$databaseName?authSource=$databaseName"
+        )
+    }
 
     @Bean
     @Primary
@@ -68,12 +75,12 @@ class MongoConfig(
     }
 
     @Bean
-    fun transactionManager(factory: ReactiveMongoDatabaseFactory?): ReactiveMongoTransactionManager? {
-        return ReactiveMongoTransactionManager(factory!!)
+    fun transactionManager(factory: ReactiveMongoDatabaseFactory): ReactiveMongoTransactionManager {
+        return ReactiveMongoTransactionManager(factory)
     }
 
     @Bean
-    fun transactionOperator(manager: ReactiveTransactionManager?): TransactionalOperator? {
-        return TransactionalOperator.create(manager!!)
+    fun transactionOperator(manager: ReactiveTransactionManager): TransactionalOperator {
+        return TransactionalOperator.create(manager)
     }
 }

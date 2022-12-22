@@ -33,6 +33,8 @@ class ClientBuilderImpl : ClientBuilder {
         KmsAsyncClient.builder().region(Region.of(awsProperties.region))
             .endpointOverride(URI.create(awsProperties.kmsEndPoint)).build()
 
+    override fun buildRedis(config: Config): RedissonReactiveClient = Redisson.create(config).reactive()
+
     @Bean
     fun redissonReactiveClient(parameterStoreConfig: ParameterStoreConfig): RedissonReactiveClient {
         val config = Config()
