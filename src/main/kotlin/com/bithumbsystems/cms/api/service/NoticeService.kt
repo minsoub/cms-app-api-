@@ -8,6 +8,7 @@ import com.bithumbsystems.cms.persistence.mongo.repository.CmsNoticeRepository
 import com.bithumbsystems.cms.persistence.redis.RedisOperator
 import com.bithumbsystems.cms.persistence.redis.model.toNoticeFix
 import com.bithumbsystems.cms.persistence.redis.model.toRedisCategory
+import com.bithumbsystems.cms.persistence.redis.model.toRedisReadCount
 import com.github.michaelbull.result.Result
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.map
@@ -88,6 +89,7 @@ class NoticeService(
 
     suspend fun getNotice(id: String): Result<BoardDetailResponse?, ErrorData> =
         executeIn(
+            dispatcher = ioDispatcher,
             action = {
                 val cmsNotice = cmsNoticeRepository.findById(id)
                 val category = cmsNotice?.categoryId?.let { cmsNoticeCategoryRepository.findAllById(it) }
@@ -101,6 +103,10 @@ class NoticeService(
 
                     boardDetailResponse.fileSize = fileInfo?.size
                     boardDetailResponse.fileName = "${fileInfo?.name}.${fileInfo?.extension}"
+                }
+
+                boardDetailResponse?.let {
+                    redisOperator.setReadCount(it.toRedisReadCount())
                 }
 
                 boardDetailResponse
