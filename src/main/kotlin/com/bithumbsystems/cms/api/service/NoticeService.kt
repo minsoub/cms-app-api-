@@ -90,7 +90,7 @@ class NoticeService(
         executeIn(
             action = {
                 val cmsNotice = cmsNoticeRepository.findById(id)
-                val category = cmsNotice?.categoryId?.let { cmsNoticeCategoryRepository.findAllById(it) }
+                val category = cmsNotice?.categoryIds?.let { cmsNoticeCategoryRepository.findAllById(it) }
 
                 val boardDetailResponse: BoardDetailResponse? = cmsNotice?.toDetailResponse()
 
@@ -113,7 +113,7 @@ class NoticeService(
 
         boardResponseList.map {
             it.categoryName = category.filter { cmsNoticeCategory ->
-                it.categoryId!!.contains(cmsNoticeCategory.id)
+                it.categoryIds!!.contains(cmsNoticeCategory.id)
             }.map {
                 it.name
             }
