@@ -105,11 +105,14 @@ class NoticeService(
                     boardDetailResponse.fileName = "${fileInfo?.name}.${fileInfo?.extension}"
                 }
 
-                boardDetailResponse?.let {
+                boardDetailResponse
+            },
+            afterJob = {
+                val cmsNotice = cmsNoticeRepository.findById(id)
+
+                cmsNotice?.let {
                     redisOperator.setReadCount(it.toRedisReadCount())
                 }
-
-                boardDetailResponse
             }
         )
 

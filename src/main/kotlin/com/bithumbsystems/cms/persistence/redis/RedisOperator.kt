@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service
 class RedisOperator(
     private val redissonReactiveClient: RedissonReactiveClient,
     private val objectMapper: ObjectMapper,
+    private val readCountRMapCache: RMapCacheReactive<String, MutableList<RedisReadCount>>,
 ) {
     suspend fun getTopNotice(): List<RedisNoticeFix> {
         val typeReference = object : TypeReference<List<RedisNoticeFix>>() {}
@@ -78,6 +79,6 @@ class RedisOperator(
                 redisReadCountList.add(redisReadCount)
             }
         }
-        readCountMap.put("CMS_NOTICE_READ_COUNT", redisReadCountList).awaitSingleOrNull()
+        readCountRMapCache.put(RedisReadCountKey.REDIS_NOTICE_READ_COUNT_KEY, redisReadCountList).awaitSingleOrNull()
     }
 }

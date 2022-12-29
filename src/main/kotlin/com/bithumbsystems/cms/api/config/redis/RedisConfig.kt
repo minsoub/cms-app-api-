@@ -6,12 +6,16 @@ import com.bithumbsystems.cms.api.util.PortCheckUtil.findAvailablePort
 import com.bithumbsystems.cms.api.util.PortCheckUtil.isRunning
 import com.bithumbsystems.cms.api.util.RedisReadCountKey
 import com.bithumbsystems.cms.persistence.mongo.entity.CmsNotice
-import com.bithumbsystems.cms.persistence.mongo.repository.CmsNoticeRepository
 import com.bithumbsystems.cms.persistence.redis.model.RedisReadCount
+import com.fasterxml.jackson.core.type.TypeReference
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import org.redisson.api.MapOptions
 import org.redisson.api.RMapCacheReactive
 import org.redisson.api.RedissonReactiveClient
 import org.redisson.api.map.MapWriter
+import org.redisson.codec.JsonJacksonCodec
+import org.redisson.codec.TypedJsonJacksonCodec
 import org.redisson.config.Config
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -32,7 +36,7 @@ class RedisConfig(
     val parameterStoreConfig: ParameterStoreConfig,
     val clientBuilder: ClientBuilder,
     private val reactiveMongoTemplate: ReactiveMongoTemplate,
-    val noticeRepository: CmsNoticeRepository
+    private val objectMapper: ObjectMapper,
 ) {
 
     private var redisServer: RedisServer? = null
@@ -52,6 +56,11 @@ class RedisConfig(
         redisServer?.start()
 
         config.useSingleServer().address = "redis://${parameterStoreConfig.redisProperties.host}:$redisPort"
+
+        val codec = JsonJacksonCodec()
+        codec.objectMapper.registerKotlinModule()
+        config.codec = codec
+
         if (!parameterStoreConfig.redisProperties.token.isNullOrEmpty()) {
             config.useSingleServer().password = parameterStoreConfig.redisProperties.token
         }
@@ -66,9 +75,12 @@ class RedisConfig(
     fun redissonReactiveClient(): RedissonReactiveClient = clientBuilder.buildRedis(config)
 
     @Bean
-    fun readCountRMapCache(redissonReactiveClient: RedissonReactiveClient): RMapCacheReactive<String, MutableList<RedisReadCount>>? {
+    fun readCountRMapCache(redissonReactiveClient: RedissonReactiveClient): RMapCacheReactive<String, MutableList<RedisReadCount>> {
+        val typeReference = object : TypeReference<Map<String, MutableList<RedisReadCount>>>() {}
+
         return redissonReactiveClient.getMapCache(
             RedisReadCountKey.REDIS_GLOBAL_READ_COUNT_KEY,
+            TypedJsonJacksonCodec(typeReference, objectMapper),
             MapOptions.defaults<String, MutableList<RedisReadCount>>()
                 .writer(getReadCountWriter())
                 .writeMode(MapOptions.WriteMode.WRITE_BEHIND)
@@ -81,17 +93,18 @@ class RedisConfig(
     fun getReadCountWriter(): MapWriter<String, MutableList<RedisReadCount>> {
         return object : MapWriter<String, MutableList<RedisReadCount>> {
             override fun write(map: Map<String, MutableList<RedisReadCount>>?) {
-                map?.forEach {
-                    reactiveMongoTemplate.updateFirst(
-                        Query.query(Criteria.where("_id").`is`("1643340")),
-                        Update.update("read_count", 1),
-                        CmsNotice::class.java
-                    ).subscribe()
+                map?.forEach { redisMap ->
+                    redisMap.value.map {
+                        reactiveMongoTemplate.findAndModify(
+                            Query.query(Criteria.where("_id").`is`(it.id)),
+                            Update.update("read_count", it.readCount),
+                            CmsNotice::class.java
+                        ).subscribe()
+                    }
                 }
             }
 
             override fun delete(keys: MutableCollection<String>?) {
-                TODO("Not yet implemented")
             }
         }
     }

@@ -108,6 +108,26 @@ object ServiceOperator {
     suspend fun <T> executeIn(
         dispatcher: CoroutineDispatcher,
         action: suspend () -> T?,
+        afterJob: suspend () -> Unit
+    ): Result<T?, ErrorData> = runSuspendCatching {
+        logger.info("action start")
+        val result = action()
+        supervisorScope {
+            launch(dispatcher) {
+                result?.apply {
+                    logger.info("afterjob start")
+                    afterJob()
+                }
+            }
+        }
+        result
+    }.mapError {
+        errorHandler(it)
+    }
+
+    suspend fun <T> executeIn(
+        dispatcher: CoroutineDispatcher,
+        action: suspend () -> T?,
         fallback: suspend () -> T?,
         afterJob: suspend (T) -> Unit
     ): Result<T?, ErrorData> = runSuspendCatching {
