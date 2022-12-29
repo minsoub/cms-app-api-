@@ -13,7 +13,7 @@ data class BoardResponse(
     @Schema(description = "제목")
     val title: String,
     var categoryName: List<String>? = null,
-    var categoryId: List<String>? = null,
+    var categoryIds: List<String>? = null,
     val screenDate: LocalDateTime? = null,
     val thumbnailUrl: String? = null,
 )
@@ -22,7 +22,7 @@ fun CmsNotice.toResponse() = BoardResponse(
     id = id,
     title = title,
     screenDate = screenDate,
-    categoryId = categoryId
+    categoryIds = categoryIds
 )
 
 fun CmsPressRelease.toResponse() = BoardResponse(
