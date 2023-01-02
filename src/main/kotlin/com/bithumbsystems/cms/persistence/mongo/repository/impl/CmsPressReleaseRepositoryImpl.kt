@@ -16,9 +16,18 @@ class CmsPressReleaseRepositoryImpl(
     private val mongoTemplate: ReactiveMongoTemplate
 ) : CmsPressReleaseRepositoryCustom {
 
-    override fun findCmsPressReleaseSearchTextAndPaging(searchText: String?, pageNo: Int, pageSize: Int): Flow<CmsPressRelease> {
+    override fun findCmsNoticeSearchTextAndPaging(searchText: String?, pageable: PageRequest): Flow<CmsPressRelease> {
+        return mongoTemplate.find(getCmsPressReleaseSearchTextAndPaging(searchText).with(pageable), CmsPressRelease::class.java).asFlow()
+    }
+
+    override fun countCmsNoticeSearchTextAndPaging(searchText: String?): Long {
+        return mongoTemplate.count(getCmsPressReleaseSearchTextAndPaging(searchText), CmsPressRelease::class.java).block()!!
+    }
+
+    fun getCmsPressReleaseSearchTextAndPaging(searchText: String?): Query {
         val query = Query()
         val criteria = Criteria()
+        val andOperator = mutableListOf<Criteria>()
 
         searchText?.let {
             criteria.orOperator(
@@ -27,16 +36,16 @@ class CmsPressReleaseRepositoryImpl(
             )
         }
 
-        criteria.andOperator(
-            Criteria.where("is_show").`is`(true)
-        )
+        andOperator.add(Criteria.where("is_show").`is`(true))
+        andOperator.add(Criteria.where("is_fix_top").`is`(false))
 
-        val pageable = PageRequest.of(pageNo, pageSize)
+        criteria.andOperator(
+            andOperator
+        )
 
         query.addCriteria(criteria)
         query.with(Sort.by(Sort.Direction.DESC, "screen_date"))
-        query.with(pageable)
 
-        return mongoTemplate.find(query, CmsPressRelease::class.java).asFlow()
+        return query
     }
 }

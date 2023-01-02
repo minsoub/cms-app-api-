@@ -19,7 +19,7 @@ class CmsPressRelease(
     val shareFileId: String? = null,
     val shareButtonName: String? = null,
     val isSchedule: Boolean = false,
-    val scheduleDate: LocalDateTime,
+    val scheduleDate: LocalDateTime? = null,
     val isDraft: Boolean = false,
     val readCount: Long = 0,
     val createAccountId: String,
