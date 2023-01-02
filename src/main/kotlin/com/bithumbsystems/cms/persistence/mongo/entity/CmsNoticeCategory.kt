@@ -10,6 +10,7 @@ class CmsNoticeCategory(
     val id: String,
     val name: String,
     val isUse: Boolean = true,
+    val isDelete: Boolean = false,
     val createAccountId: String,
     val createDate: LocalDateTime = LocalDateTime.now(),
     val updateAccountId: String? = null,

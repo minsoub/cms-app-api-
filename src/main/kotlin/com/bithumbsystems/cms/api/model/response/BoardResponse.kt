@@ -2,7 +2,7 @@ package com.bithumbsystems.cms.api.model.response
 
 import com.bithumbsystems.cms.persistence.mongo.entity.CmsNotice
 import com.bithumbsystems.cms.persistence.mongo.entity.CmsPressRelease
-import com.bithumbsystems.cms.persistence.redis.model.RedisNoticeFix
+import com.bithumbsystems.cms.persistence.redis.model.RedisBoardFixList
 import io.swagger.v3.oas.annotations.media.Schema
 import org.springframework.data.domain.Page
 import java.time.LocalDateTime
@@ -31,7 +31,7 @@ fun CmsPressRelease.toResponse() = BoardResponse(
     screenDate = screenDate
 )
 
-fun RedisNoticeFix.toResponse() = BoardResponse(
+fun RedisBoardFixList.toResponse() = BoardResponse(
     id = id,
     title = title,
     screenDate = screenDate,
