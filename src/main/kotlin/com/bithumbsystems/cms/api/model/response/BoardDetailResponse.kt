@@ -1,5 +1,6 @@
 package com.bithumbsystems.cms.api.model.response
 
+import com.bithumbsystems.cms.persistence.mongo.entity.CmsEvent
 import com.bithumbsystems.cms.persistence.mongo.entity.CmsNotice
 import com.bithumbsystems.cms.persistence.mongo.entity.CmsPressRelease
 import io.swagger.v3.oas.annotations.media.Schema
@@ -38,6 +39,19 @@ fun CmsNotice.toDetailResponse() = BoardDetailResponse(
 )
 
 fun CmsPressRelease.toDetailResponse() = BoardDetailResponse(
+    id = id,
+    title = title,
+    screenDate = screenDate,
+    content = content,
+    readCount = readCount,
+    shareTitle = shareTitle,
+    shareDescription = shareDescription,
+    shareFileId = shareFileId,
+    shareButtonName = shareButtonName,
+    fileId = fileId
+)
+
+fun CmsEvent.toDetailResponse() = BoardDetailResponse(
     id = id,
     title = title,
     screenDate = screenDate,

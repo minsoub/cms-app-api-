@@ -12,7 +12,7 @@ interface CmsPressReleaseRepository : CoroutineSortingRepository<CmsPressRelease
 }
 
 interface CmsPressReleaseRepositoryCustom {
-    fun findCmsNoticeSearchTextAndPaging(searchText: String?, pageable: PageRequest): Flow<CmsPressRelease>
+    fun findCmsPressReleaseSearchTextAndPaging(searchText: String?, pageable: PageRequest): Flow<CmsPressRelease>
 
-    fun countCmsNoticeSearchTextAndPaging(searchText: String?): Long
+    fun countCmsPressReleaseSearchTextAndPaging(searchText: String?): Long
 }
