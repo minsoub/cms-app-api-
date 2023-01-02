@@ -17,7 +17,7 @@ class RedisOperator(
     private val redissonReactiveClient: RedissonReactiveClient,
     private val objectMapper: ObjectMapper,
 ) {
-    suspend fun getTopNotice(redisKey: String): List<RedisBoardFixList> {
+    suspend fun getTopList(redisKey: String): List<RedisBoardFixList> {
         val typeReference = object : TypeReference<List<RedisBoardFixList>>() {}
 
         return redissonReactiveClient
@@ -26,13 +26,13 @@ class RedisOperator(
             .awaitSingle()
     }
 
-    suspend fun setTopNotice(redisKey: String, noticeList: List<RedisBoardFixList>): Void {
+    suspend fun setTopList(redisKey: String, topList: List<RedisBoardFixList>): Void {
         val typeReference = object : TypeReference<List<RedisBoardFixList>>() {}
 
         val bucket: RBucketReactive<List<RedisBoardFixList>> = redissonReactiveClient
             .getBucket(redisKey, TypedJsonJacksonCodec(typeReference, objectMapper))
 
-        return bucket.set(noticeList).awaitSingle()
+        return bucket.set(topList).awaitSingle()
     }
 
     suspend fun getNoticeCategory(): List<NoticeCategoryResponse> {

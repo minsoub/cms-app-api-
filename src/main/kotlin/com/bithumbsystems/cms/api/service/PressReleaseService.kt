@@ -34,7 +34,7 @@ class PressReleaseService(
             action = {
                 val pageable = PageRequest.of(boardRequest.pageNo, boardRequest.pageSize)
 
-                val topList: List<BoardResponse> = redisOperator.getTopNotice(redisKey).map { it.toResponse() }
+                val topList: List<BoardResponse> = redisOperator.getTopList(redisKey).map { it.toResponse() }
 
                 val cmsPressReleaseList = cmsPressReleaseRepository.findCmsPressReleaseSearchTextAndPaging(boardRequest.searchText, pageable).map {
                     it.toResponse()
@@ -77,7 +77,7 @@ class PressReleaseService(
                 val redisNoticeFix = fixList.map {
                     it.toNoticeFix()
                 }
-                redisOperator.setTopNotice(redisKey, redisNoticeFix)
+                redisOperator.setTopList(redisKey, redisNoticeFix)
             }
         )
 
