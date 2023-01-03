@@ -36,7 +36,7 @@ class NoticeService(
             action = {
                 val pageable = PageRequest.of(boardRequest.pageNo, boardRequest.pageSize)
 
-                val topList: List<BoardResponse> = redisOperator.getTopNotice(redisKey).map { it.toResponse() }
+                val topList: List<BoardResponse> = redisOperator.getTopList(redisKey).map { it.toResponse() }
 
                 val cmsNoticeList = cmsNoticeRepository.findCmsNoticeSearchTextAndPaging(boardRequest.categoryId, boardRequest.searchText, pageable)
                     .map {
@@ -85,7 +85,7 @@ class NoticeService(
                 val redisNoticeFix = fixList.map {
                     it.toNoticeFix()
                 }
-                redisOperator.setTopNotice(redisKey, redisNoticeFix)
+                redisOperator.setTopList(redisKey, redisNoticeFix)
             }
         )
 
