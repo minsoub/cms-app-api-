@@ -41,6 +41,8 @@ class CmsNoticeRepositoryImpl(
         }
 
         andOperator.add(Criteria.where("is_show").`is`(true))
+        andOperator.add(Criteria.where("is_delete").`is`(false))
+        andOperator.add(Criteria.where("is_draft").`is`(false))
         andOperator.add(Criteria.where("is_fix_top").`is`(false))
 
         criteria.andOperator(

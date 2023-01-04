@@ -15,6 +15,7 @@ class CmsReviewReport(
     val content: String,
     val fileId: String? = null,
     val thumbnailFileId: String? = null,
+    val thumbnailUrl: String? = null,
     val shareTitle: String? = null,
     val shareDescription: String? = null,
     val shareFileId: String? = null,
