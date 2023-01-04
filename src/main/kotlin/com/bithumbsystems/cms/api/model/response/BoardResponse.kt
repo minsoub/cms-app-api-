@@ -1,22 +1,18 @@
 package com.bithumbsystems.cms.api.model.response
 
-import com.bithumbsystems.cms.persistence.mongo.entity.CmsEvent
-import com.bithumbsystems.cms.persistence.mongo.entity.CmsNotice
-import com.bithumbsystems.cms.persistence.mongo.entity.CmsPressRelease
+import com.bithumbsystems.cms.persistence.mongo.entity.*
 import com.bithumbsystems.cms.persistence.redis.model.RedisNoticeFix
-import io.swagger.v3.oas.annotations.media.Schema
 import org.springframework.data.domain.Page
 import java.time.LocalDateTime
 
-@Schema(description = "게시글 리스트")
 data class BoardResponse(
-    val id: String,
-    @Schema(description = "제목")
-    val title: String,
-    var categoryName: List<String>? = null,
+    val id: String?,
+    val title: String?,
+    var categoryNames: List<String>? = null,
     var categoryIds: List<String>? = null,
     val screenDate: LocalDateTime? = null,
-    val thumbnailUrl: String? = null,
+    var thumbnailUrl: String? = null,
+    val thumbnailFileId: String? = null,
 )
 
 fun CmsNotice.toResponse() = BoardResponse(
@@ -38,11 +34,30 @@ fun CmsEvent.toResponse() = BoardResponse(
     screenDate = screenDate
 )
 
+fun CmsReviewReport.toResponse() = BoardResponse(
+    id = id,
+    title = title,
+    screenDate = screenDate,
+    thumbnailUrl = thumbnailFileId?.getS3Url()
+)
+
+fun CmsEconomicResearch.toResponse() = BoardResponse(
+    id = id,
+    title = title,
+    screenDate = screenDate
+)
+
+fun CmsInvestmentWarning.toResponse() = BoardResponse(
+    id = id,
+    title = title,
+    screenDate = screenDate
+)
+
 fun RedisNoticeFix.toResponse() = BoardResponse(
     id = id,
     title = title,
     screenDate = screenDate,
-    categoryName = categoryName
+    categoryNames = categoryNames
 )
 
 data class DataResponse(
