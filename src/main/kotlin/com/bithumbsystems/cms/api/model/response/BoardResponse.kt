@@ -1,13 +1,14 @@
 package com.bithumbsystems.cms.api.model.response
 
+import com.bithumbsystems.cms.api.util.getS3Url
 import com.bithumbsystems.cms.persistence.mongo.entity.*
 import com.bithumbsystems.cms.persistence.redis.model.RedisNoticeFix
 import org.springframework.data.domain.Page
 import java.time.LocalDateTime
 
 data class BoardResponse(
-    val id: String?,
-    val title: String?,
+    val id: String,
+    val title: String,
     var categoryNames: List<String>? = null,
     var categoryIds: List<String>? = null,
     val screenDate: LocalDateTime? = null,
