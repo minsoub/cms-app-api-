@@ -10,6 +10,7 @@ import org.springframework.data.mongodb.core.ReactiveMongoTemplate
 import org.springframework.data.mongodb.core.query.Criteria
 import org.springframework.data.mongodb.core.query.Query
 import org.springframework.stereotype.Repository
+import reactor.core.publisher.Mono
 
 @Repository
 class CmsPressReleaseRepositoryImpl(
@@ -20,8 +21,8 @@ class CmsPressReleaseRepositoryImpl(
         return mongoTemplate.find(getCmsPressReleaseSearchTextAndPaging(searchText).with(pageable), CmsPressRelease::class.java).asFlow()
     }
 
-    override fun countCmsPressReleaseSearchTextAndPaging(searchText: String?): Long {
-        return mongoTemplate.count(getCmsPressReleaseSearchTextAndPaging(searchText), CmsPressRelease::class.java).block()!!
+    override fun countCmsPressReleaseSearchTextAndPaging(searchText: String?): Mono<Long> {
+        return mongoTemplate.count(getCmsPressReleaseSearchTextAndPaging(searchText), CmsPressRelease::class.java)
     }
 
     fun getCmsPressReleaseSearchTextAndPaging(searchText: String?): Query {
@@ -37,6 +38,8 @@ class CmsPressReleaseRepositoryImpl(
         }
 
         andOperator.add(Criteria.where("is_show").`is`(true))
+        andOperator.add(Criteria.where("is_delete").`is`(false))
+        andOperator.add(Criteria.where("is_draft").`is`(false))
         andOperator.add(Criteria.where("is_fix_top").`is`(false))
 
         criteria.andOperator(

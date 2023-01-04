@@ -5,7 +5,7 @@ import com.bithumbsystems.cms.api.model.request.BoardRequest
 import com.bithumbsystems.cms.api.model.response.*
 import com.bithumbsystems.cms.api.util.RedisKey
 import com.bithumbsystems.cms.persistence.mongo.repository.CmsFileInfoRepository
-import com.bithumbsystems.cms.persistence.mongo.repository.CmsPressReleaseRepository
+import com.bithumbsystems.cms.persistence.mongo.repository.CmsReviewReportRepository
 import com.bithumbsystems.cms.persistence.redis.RedisOperator
 import com.bithumbsystems.cms.persistence.redis.model.toNoticeFix
 import com.github.michaelbull.result.Result
@@ -18,16 +18,16 @@ import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
 
 @Service
-class PressReleaseService(
+class ReviewReportService(
     private val ioDispatcher: CoroutineDispatcher,
-    private val cmsPressReleaseRepository: CmsPressReleaseRepository,
+    private val cmsReviewReportRepository: CmsReviewReportRepository,
     private val cmsFileInfoRepository: CmsFileInfoRepository,
     private val redisOperator: RedisOperator,
 ) {
 
-    private val redisKey: String = RedisKey.REDIS_PRESS_RELEASE_FIX_KEY
+    private val redisKey: String = RedisKey.REDIS_REVIEW_REPORT_FIX_KEY
 
-    suspend fun getPressReleaseList(
+    suspend fun getReviewReportList(
         boardRequest: BoardRequest
     ): Result<DataResponse?, ErrorData> =
         executeIn(
@@ -37,58 +37,59 @@ class PressReleaseService(
 
                 val topList: List<BoardResponse> = redisOperator.getTopList(redisKey).map { it.toResponse() }
 
-                val cmsPressReleaseList = cmsPressReleaseRepository.findCmsPressReleaseSearchTextAndPaging(boardRequest.searchText, pageable).map {
+                val cmsReviewReport = cmsReviewReportRepository.findCmsReviewReportSearchTextAndPaging(boardRequest.searchText, pageable).map {
                     it.toResponse()
                 }.toList()
 
                 DataResponse(
                     topList,
                     PageImpl(
-                        cmsPressReleaseList,
+                        cmsReviewReport,
                         pageable,
-                        cmsPressReleaseRepository.countCmsPressReleaseSearchTextAndPaging(boardRequest.searchText).awaitSingle()
+                        cmsReviewReportRepository.countCmsReviewReportSearchTextAndPaging(boardRequest.searchText).awaitSingle()
                     )
                 )
             },
             fallback = {
                 val pageable = PageRequest.of(boardRequest.pageNo, boardRequest.pageSize)
 
-                val topList = cmsPressReleaseRepository.findCmsPressReleaseByIsFixTopAndIsShowOrderByScreenDateDesc().map {
+                val topList = cmsReviewReportRepository.findCmsReviewReportByIsFixTopAndIsShowOrderByScreenDateDesc().map {
                     it.toResponse()
                 }.toList()
 
-                val cmsPressReleaseList = cmsPressReleaseRepository.findCmsPressReleaseSearchTextAndPaging(boardRequest.searchText, pageable).map {
+                val cmsReviewReport = cmsReviewReportRepository.findCmsReviewReportSearchTextAndPaging(boardRequest.searchText, pageable).map {
                     it.toResponse()
                 }.toList()
 
                 DataResponse(
                     topList,
                     PageImpl(
-                        cmsPressReleaseList,
+                        cmsReviewReport,
                         pageable,
-                        cmsPressReleaseRepository.countCmsPressReleaseSearchTextAndPaging(boardRequest.searchText).awaitSingle()
+                        cmsReviewReportRepository.countCmsReviewReportSearchTextAndPaging(boardRequest.searchText).awaitSingle()
                     )
                 )
             },
             afterJob = {
-                val fixList = cmsPressReleaseRepository.findCmsPressReleaseByIsFixTopAndIsShowOrderByScreenDateDesc().map {
+                val fixList = cmsReviewReportRepository.findCmsReviewReportByIsFixTopAndIsShowOrderByScreenDateDesc().map {
                     it.toResponse()
                 }.toList()
 
                 val redisNoticeFix = fixList.map {
                     it.toNoticeFix()
                 }
+
                 redisOperator.setTopList(redisKey, redisNoticeFix)
             }
         )
 
-    suspend fun getPressRelease(id: String): Result<BoardDetailResponse?, ErrorData> =
+    suspend fun getReviewReport(id: String): Result<BoardDetailResponse?, ErrorData> =
         executeIn(
             dispatcher = ioDispatcher,
             action = {
-                val cmsPressRelease = cmsPressReleaseRepository.findById(id)
+                val cmsReviewReport = cmsReviewReportRepository.findById(id)
 
-                val boardDetailResponse: BoardDetailResponse? = cmsPressRelease?.toDetailResponse()
+                val boardDetailResponse: BoardDetailResponse? = cmsReviewReport?.toDetailResponse()
 
                 boardDetailResponse?.fileId?.let {
                     val fileInfo = cmsFileInfoRepository.findById(it)
@@ -100,9 +101,9 @@ class PressReleaseService(
                 boardDetailResponse
             },
             afterJob = {
-                val cmsPressRelease = cmsPressReleaseRepository.findById(id)
+                val cmscmsReviewReport = cmsReviewReportRepository.findById(id)
 
-                cmsPressRelease?.let {
+                cmscmsReviewReport?.let {
                     // redis 조회 수
                 }
             }

@@ -1,7 +1,7 @@
 package com.bithumbsystems.cms.persistence.mongo.repository.impl
 
-import com.bithumbsystems.cms.persistence.mongo.entity.CmsEvent
-import com.bithumbsystems.cms.persistence.mongo.repository.CmsEventRepositoryCustom
+import com.bithumbsystems.cms.persistence.mongo.entity.CmsReviewReport
+import com.bithumbsystems.cms.persistence.mongo.repository.CmsReviewReportRepositoryCustom
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.reactive.asFlow
 import org.springframework.data.domain.PageRequest
@@ -13,16 +13,16 @@ import org.springframework.stereotype.Repository
 import reactor.core.publisher.Mono
 
 @Repository
-class CmsEventRepositoryImpl(
+class CmsReviewReportRepositoryImpl(
     private val mongoTemplate: ReactiveMongoTemplate
-) : CmsEventRepositoryCustom {
+) : CmsReviewReportRepositoryCustom {
 
-    override fun findCmsEventSearchTextAndPaging(searchText: String?, pageable: PageRequest): Flow<CmsEvent> {
-        return mongoTemplate.find(getCmsPressReleaseSearchTextAndPaging(searchText).with(pageable), CmsEvent::class.java).asFlow()
+    override fun findCmsReviewReportSearchTextAndPaging(searchText: String?, pageable: PageRequest): Flow<CmsReviewReport> {
+        return mongoTemplate.find(getCmsPressReleaseSearchTextAndPaging(searchText).with(pageable), CmsReviewReport::class.java).asFlow()
     }
 
-    override fun countCmsEventSearchTextAndPaging(searchText: String?): Mono<Long> {
-        return mongoTemplate.count(getCmsPressReleaseSearchTextAndPaging(searchText), CmsEvent::class.java)
+    override fun countCmsReviewReportSearchTextAndPaging(searchText: String?): Mono<Long> {
+        return mongoTemplate.count(getCmsPressReleaseSearchTextAndPaging(searchText), CmsReviewReport::class.java)
     }
 
     fun getCmsPressReleaseSearchTextAndPaging(searchText: String?): Query {

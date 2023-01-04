@@ -13,6 +13,7 @@ class CmsEconomicResearch(
     val isShow: Boolean = true,
     val isDelete: Boolean = false,
     val thumbnailFileId: String? = null,
+    val thumbnailUrl: String? = null,
     val content: String,
     val fileId: String? = null,
     val shareTitle: String? = null,

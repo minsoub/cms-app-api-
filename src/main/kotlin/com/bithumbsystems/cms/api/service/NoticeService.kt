@@ -11,9 +11,10 @@ import com.bithumbsystems.cms.persistence.redis.RedisOperator
 import com.bithumbsystems.cms.persistence.redis.model.toNoticeFix
 import com.bithumbsystems.cms.persistence.redis.model.toRedisCategory
 import com.github.michaelbull.result.Result
-import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.reactor.awaitSingle
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
@@ -48,7 +49,7 @@ class NoticeService(
                     PageImpl(
                         cmsNoticeList,
                         pageable,
-                        cmsNoticeRepository.countCmsNoticeSearchTextAndPaging(boardRequest.categoryId, boardRequest.searchText)
+                        cmsNoticeRepository.countCmsNoticeSearchTextAndPaging(boardRequest.categoryId, boardRequest.searchText).awaitSingle()
                     )
                 )
             },
@@ -71,7 +72,7 @@ class NoticeService(
                     PageImpl(
                         cmsNoticeList,
                         pageable,
-                        cmsNoticeRepository.countCmsNoticeSearchTextAndPaging(boardRequest.categoryId, boardRequest.searchText)
+                        cmsNoticeRepository.countCmsNoticeSearchTextAndPaging(boardRequest.categoryId, boardRequest.searchText).awaitSingle()
                     )
                 )
             },
@@ -123,7 +124,7 @@ class NoticeService(
         val category = cmsNoticeCategoryRepository.findAll().toList()
 
         boardResponseList.map {
-            it.categoryName = category.filter { cmsNoticeCategory ->
+            it.categoryNames = category.filter { cmsNoticeCategory ->
                 it.categoryIds!!.contains(cmsNoticeCategory.id)
             }.map {
                 it.name
