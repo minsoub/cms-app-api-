@@ -1,20 +1,46 @@
 package com.bithumbsystems.cms.persistence.redis.model
 
 import com.bithumbsystems.cms.api.model.response.BoardResponse
+import com.bithumbsystems.cms.api.model.response.BoardThumbnailResponse
+import com.bithumbsystems.cms.api.model.response.NoticeFixResponse
 import java.time.LocalDateTime
 
-data class RedisNoticeFix(
+data class RedisBoard(
     val id: String,
     val title: String,
-    val screenDate: LocalDateTime? = null,
-    val categoryNames: List<String>? = null,
-    val thumbnailUrl: String? = null
+    val createDate: LocalDateTime
 )
 
-fun BoardResponse.toNoticeFix() = RedisNoticeFix(
+data class RedisNotice(
+    val id: String,
+    val title: String,
+    val categoryNames: List<String>,
+    val createDate: LocalDateTime
+)
+
+data class RedisThumbnail(
+    val id: String,
+    val title: String,
+    val thumbnailUrl: String?,
+    val createDate: LocalDateTime
+)
+
+fun BoardResponse.toRedis() = RedisBoard(
     id = id,
     title = title,
-    screenDate = screenDate,
+    createDate = createDate,
+)
+
+fun NoticeFixResponse.toRedis() = RedisNotice(
+    id = id,
+    title = title,
     categoryNames = categoryNames,
-    thumbnailUrl = thumbnailUrl
+    createDate = createDate,
+)
+
+fun BoardThumbnailResponse.toRedis() = RedisThumbnail(
+    id = id,
+    title = title,
+    thumbnailUrl = thumbnailUrl,
+    createDate = createDate,
 )

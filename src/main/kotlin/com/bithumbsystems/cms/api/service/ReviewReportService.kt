@@ -7,7 +7,8 @@ import com.bithumbsystems.cms.api.util.RedisKey
 import com.bithumbsystems.cms.persistence.mongo.repository.CmsFileInfoRepository
 import com.bithumbsystems.cms.persistence.mongo.repository.CmsReviewReportRepository
 import com.bithumbsystems.cms.persistence.redis.RedisOperator
-import com.bithumbsystems.cms.persistence.redis.model.toNoticeFix
+import com.bithumbsystems.cms.persistence.redis.model.RedisThumbnail
+import com.bithumbsystems.cms.persistence.redis.model.toRedis
 import com.github.michaelbull.result.Result
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.map
@@ -35,7 +36,7 @@ class ReviewReportService(
             action = {
                 val pageable = PageRequest.of(boardRequest.pageNo, boardRequest.pageSize)
 
-                val topList: List<BoardResponse> = redisOperator.getTopList(redisKey).map { it.toResponse() }
+                val topList: List<BoardResponse> = redisOperator.getTopList(redisKey, RedisThumbnail::class.java).map { it.toResponse() }
 
                 val cmsReviewReport = cmsReviewReportRepository.findCmsReviewReportSearchTextAndPaging(boardRequest.searchText, pageable).map {
                     it.toResponse()
@@ -75,11 +76,11 @@ class ReviewReportService(
                     it.toResponse()
                 }.toList()
 
-                val redisNoticeFix = fixList.map {
-                    it.toNoticeFix()
+                val redisReviewReport = fixList.map {
+                    it.toRedis()
                 }
 
-                redisOperator.setTopList(redisKey, redisNoticeFix)
+                redisOperator.setTopList(redisKey, redisReviewReport, RedisThumbnail::class.java)
             }
         )
 

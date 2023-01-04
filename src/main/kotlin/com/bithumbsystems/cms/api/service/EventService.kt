@@ -7,7 +7,8 @@ import com.bithumbsystems.cms.api.util.RedisKey
 import com.bithumbsystems.cms.persistence.mongo.repository.CmsEventRepository
 import com.bithumbsystems.cms.persistence.mongo.repository.CmsFileInfoRepository
 import com.bithumbsystems.cms.persistence.redis.RedisOperator
-import com.bithumbsystems.cms.persistence.redis.model.toNoticeFix
+import com.bithumbsystems.cms.persistence.redis.model.RedisBoard
+import com.bithumbsystems.cms.persistence.redis.model.toRedis
 import com.github.michaelbull.result.Result
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.map
@@ -35,7 +36,7 @@ class EventService(
             action = {
                 val pageable = PageRequest.of(boardRequest.pageNo, boardRequest.pageSize)
 
-                val topList: List<BoardResponse> = redisOperator.getTopList(redisKey).map { it.toResponse() }
+                val topList: List<BoardResponse> = redisOperator.getTopList(redisKey, RedisBoard::class.java).map { it.toResponse() }
 
                 val cmsEventList = cmsEventRepository.findCmsEventSearchTextAndPaging(boardRequest.searchText, pageable).map {
                     it.toResponse()
@@ -75,10 +76,10 @@ class EventService(
                     it.toResponse()
                 }.toList()
 
-                val redisNoticeFix = fixList.map {
-                    it.toNoticeFix()
+                val redisEventFix = fixList.map {
+                    it.toRedis()
                 }
-                redisOperator.setTopList(redisKey, redisNoticeFix)
+                redisOperator.setTopList(redisKey, redisEventFix, RedisBoard::class.java)
             }
         )
 

@@ -2,63 +2,95 @@ package com.bithumbsystems.cms.api.model.response
 
 import com.bithumbsystems.cms.api.util.getS3Url
 import com.bithumbsystems.cms.persistence.mongo.entity.*
-import com.bithumbsystems.cms.persistence.redis.model.RedisNoticeFix
+import com.bithumbsystems.cms.persistence.redis.model.RedisBoard
+import com.bithumbsystems.cms.persistence.redis.model.RedisNotice
+import com.bithumbsystems.cms.persistence.redis.model.RedisThumbnail
 import org.springframework.data.domain.Page
 import java.time.LocalDateTime
 
-data class BoardResponse(
+open class BoardResponse(
     val id: String,
     val title: String,
-    var categoryNames: List<String>? = null,
-    var categoryIds: List<String>? = null,
-    val screenDate: LocalDateTime? = null,
-    var thumbnailUrl: String? = null,
-    val thumbnailFileId: String? = null,
+    val createDate: LocalDateTime
 )
 
-fun CmsNotice.toResponse() = BoardResponse(
+class NoticeResponse(
+    id: String,
+    title: String,
+    createDate: LocalDateTime,
+    var categoryIds: List<String>
+) : BoardResponse(id, title, createDate)
+
+class NoticeFixResponse(
+    id: String,
+    title: String,
+    createDate: LocalDateTime,
+    var categoryNames: List<String>
+) : BoardResponse(id, title, createDate)
+
+class BoardThumbnailResponse(
+    id: String,
+    title: String,
+    createDate: LocalDateTime,
+    var thumbnailUrl: String?
+) : BoardResponse(id, title, createDate)
+
+fun CmsNotice.toResponse() = NoticeResponse(
     id = id,
     title = title,
-    screenDate = screenDate,
+    createDate = createDate,
     categoryIds = categoryIds
 )
 
 fun CmsPressRelease.toResponse() = BoardResponse(
     id = id,
     title = title,
-    screenDate = screenDate
+    createDate = createDate
 )
 
 fun CmsEvent.toResponse() = BoardResponse(
     id = id,
     title = title,
-    screenDate = screenDate
+    createDate = createDate
 )
 
-fun CmsReviewReport.toResponse() = BoardResponse(
+fun CmsReviewReport.toResponse() = BoardThumbnailResponse(
     id = id,
     title = title,
-    screenDate = screenDate,
-    thumbnailUrl = thumbnailFileId?.getS3Url()
+    createDate = createDate,
+    thumbnailUrl = thumbnailUrl ?: thumbnailFileId?.getS3Url()
 )
 
 fun CmsEconomicResearch.toResponse() = BoardResponse(
     id = id,
     title = title,
-    screenDate = screenDate
+    createDate = createDate
 )
 
 fun CmsInvestmentWarning.toResponse() = BoardResponse(
     id = id,
     title = title,
-    screenDate = screenDate
+    createDate = createDate
 )
 
-fun RedisNoticeFix.toResponse() = BoardResponse(
+fun RedisNotice.toResponse() = NoticeFixResponse(
     id = id,
     title = title,
-    screenDate = screenDate,
+    createDate = createDate,
     categoryNames = categoryNames
+)
+
+fun RedisBoard.toResponse() = BoardResponse(
+    id = id,
+    title = title,
+    createDate = createDate
+)
+
+fun RedisThumbnail.toResponse() = BoardThumbnailResponse(
+    id = id,
+    title = title,
+    createDate = createDate,
+    thumbnailUrl = thumbnailUrl
 )
 
 data class DataResponse(

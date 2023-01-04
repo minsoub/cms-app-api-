@@ -3,7 +3,6 @@ package com.bithumbsystems.cms.persistence.redis
 import com.bithumbsystems.cms.api.model.response.NoticeCategoryResponse
 import com.bithumbsystems.cms.api.util.RedisKey
 import com.bithumbsystems.cms.persistence.redis.model.RedisNoticeCategory
-import com.bithumbsystems.cms.persistence.redis.model.RedisNoticeFix
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
 import kotlinx.coroutines.reactor.awaitSingle
@@ -17,20 +16,16 @@ class RedisOperator(
     private val redissonReactiveClient: RedissonReactiveClient,
     private val objectMapper: ObjectMapper,
 ) {
-    suspend fun getTopList(redisKey: String): List<RedisNoticeFix> {
-        val typeReference = object : TypeReference<List<RedisNoticeFix>>() {}
-
+    suspend fun <T> getTopList(redisKey: String, clazz: Class<T>): List<T> {
         return redissonReactiveClient
-            .getBucket<List<RedisNoticeFix>>(redisKey, TypedJsonJacksonCodec(typeReference, objectMapper))
+            .getBucket<List<T>>(redisKey, TypedJsonJacksonCodec(clazz, objectMapper))
             .get()
             .awaitSingle()
     }
 
-    suspend fun setTopList(redisKey: String, topList: List<RedisNoticeFix>): Void {
-        val typeReference = object : TypeReference<List<RedisNoticeFix>>() {}
-
-        val bucket: RBucketReactive<List<RedisNoticeFix>> = redissonReactiveClient
-            .getBucket(redisKey, TypedJsonJacksonCodec(typeReference, objectMapper))
+    suspend fun <T> setTopList(redisKey: String, topList: List<T>, clazz: Class<T>): Void {
+        val bucket: RBucketReactive<List<T>> = redissonReactiveClient
+            .getBucket(redisKey, TypedJsonJacksonCodec(clazz, objectMapper))
 
         return bucket.set(topList).awaitSingle()
     }
