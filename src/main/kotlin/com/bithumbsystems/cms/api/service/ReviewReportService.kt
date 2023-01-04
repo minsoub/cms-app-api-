@@ -12,6 +12,7 @@ import com.github.michaelbull.result.Result
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.reactor.awaitSingle
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
@@ -45,7 +46,7 @@ class ReviewReportService(
                     PageImpl(
                         cmsReviewReport,
                         pageable,
-                        cmsReviewReportRepository.countCmsReviewReportSearchTextAndPaging(boardRequest.searchText)
+                        cmsReviewReportRepository.countCmsReviewReportSearchTextAndPaging(boardRequest.searchText).awaitSingle()
                     )
                 )
             },
@@ -65,7 +66,7 @@ class ReviewReportService(
                     PageImpl(
                         cmsReviewReport,
                         pageable,
-                        cmsReviewReportRepository.countCmsReviewReportSearchTextAndPaging(boardRequest.searchText)
+                        cmsReviewReportRepository.countCmsReviewReportSearchTextAndPaging(boardRequest.searchText).awaitSingle()
                     )
                 )
             },

@@ -10,6 +10,7 @@ import org.springframework.data.mongodb.core.ReactiveMongoTemplate
 import org.springframework.data.mongodb.core.query.Criteria
 import org.springframework.data.mongodb.core.query.Query
 import org.springframework.stereotype.Repository
+import reactor.core.publisher.Mono
 
 @Repository
 class CmsEventRepositoryImpl(
@@ -20,8 +21,8 @@ class CmsEventRepositoryImpl(
         return mongoTemplate.find(getCmsPressReleaseSearchTextAndPaging(searchText).with(pageable), CmsEvent::class.java).asFlow()
     }
 
-    override fun countCmsEventSearchTextAndPaging(searchText: String?): Long {
-        return mongoTemplate.count(getCmsPressReleaseSearchTextAndPaging(searchText), CmsEvent::class.java).block()!!
+    override fun countCmsEventSearchTextAndPaging(searchText: String?): Mono<Long> {
+        return mongoTemplate.count(getCmsPressReleaseSearchTextAndPaging(searchText), CmsEvent::class.java)
     }
 
     fun getCmsPressReleaseSearchTextAndPaging(searchText: String?): Query {

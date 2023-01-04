@@ -7,9 +7,9 @@ import org.springframework.data.domain.Page
 import java.time.LocalDateTime
 
 data class BoardResponse(
-    val id: String,
-    val title: String,
-    var categoryName: List<String>? = null,
+    val id: String?,
+    val title: String?,
+    var categoryNames: List<String>? = null,
     var categoryIds: List<String>? = null,
     val screenDate: LocalDateTime? = null,
     var thumbnailUrl: String? = null,
@@ -58,7 +58,7 @@ fun RedisBoardFixList.toResponse() = BoardResponse(
     id = id,
     title = title,
     screenDate = screenDate,
-    categoryName = categoryName
+    categoryNames = categoryNames
 )
 
 data class DataResponse(
