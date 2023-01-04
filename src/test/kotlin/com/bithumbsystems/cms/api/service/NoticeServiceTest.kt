@@ -1,6 +1,8 @@
 package com.bithumbsystems.cms.api.service
 
+import com.bithumbsystems.cms.api.model.request.BoardRequest
 import com.bithumbsystems.cms.api.model.response.toResponse
+import com.bithumbsystems.cms.api.util.RedisKey.REDIS_NOTICE_FIX_KEY
 import com.bithumbsystems.cms.persistence.mongo.entity.CmsFileInfo
 import com.bithumbsystems.cms.persistence.mongo.entity.CmsNotice
 import com.bithumbsystems.cms.persistence.mongo.entity.CmsNoticeCategory
@@ -17,7 +19,6 @@ import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.`should be equal to`
 import org.junit.jupiter.api.BeforeAll
-
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.extension.ExtendWith
@@ -25,7 +26,6 @@ import org.springframework.data.domain.PageRequest
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import java.time.LocalDateTime
-import java.util.*
 import kotlin.test.assertEquals
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -57,7 +57,7 @@ class NoticeServiceTest {
     @Test
     fun getNoticeList(): Unit = runTest {
         val noticeList = CmsNotice(
-            categoryId = listOf("1"),
+            categoryIds = listOf("1"),
             title = "test board",
             content = "contents blah",
             shareTitle = "",
@@ -73,12 +73,12 @@ class NoticeServiceTest {
             categoryName = listOf("안내")
         )
 
-        coEvery { redisOperator.getTopNotice() } returns listOf(noticeTop)
+        coEvery { redisOperator.getTopList(REDIS_NOTICE_FIX_KEY) } returns listOf(noticeTop)
         coEvery { cmsNoticeRepository.findCmsNoticeSearchTextAndPaging("", "", PageRequest.of(0, 15)) } returns flowOf(noticeList)
         coEvery { cmsNoticeRepository.findCmsNoticeByIsFixTopAndIsShowOrderByScreenDateDesc() } returns flowOf(noticeList)
         coEvery { cmsNoticeRepository.countCmsNoticeSearchTextAndPaging("", "") } returns 1
 
-        val result = noticeService.getNoticeList("", "", 0, 15)
+        val result = noticeService.getNoticeList(BoardRequest("", "", 0, 15))
 
         verify { cmsNoticeRepository.findCmsNoticeSearchTextAndPaging("", "", PageRequest.of(0, 15)) }
 
@@ -92,7 +92,7 @@ class NoticeServiceTest {
     fun getNotice(): Unit = runTest {
         val topCmpNotice = CmsNotice(
             id = "notice_id",
-            categoryId = listOf("category_id"),
+            categoryIds = listOf("category_id"),
             title = "test board",
             content = "contents blah",
             shareTitle = "",
