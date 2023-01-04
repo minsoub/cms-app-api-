@@ -14,7 +14,7 @@ private const val DATE_TIME_PATTERN = "yyyy-MM-dd HH:mm:ss"
 object GsonUtil {
 
     val gson: Gson = GsonBuilder()
-        .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
+        .setFieldNamingPolicy(FieldNamingPolicy.IDENTITY)
         .disableHtmlEscaping()
         .setPrettyPrinting()
         .setPrettyPrinting()
