@@ -6,9 +6,7 @@ import com.bithumbsystems.cms.persistence.mongo.entity.CmsNotice
 data class RedisReadCount(
     val id: String,
     var readCount: Long
-) {
-    constructor() : this("", 0)
-}
+)
 
 fun BoardDetailResponse.toRedisReadCount() = RedisReadCount(
     id = id,
