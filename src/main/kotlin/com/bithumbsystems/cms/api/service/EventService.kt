@@ -9,6 +9,7 @@ import com.bithumbsystems.cms.persistence.mongo.repository.CmsFileInfoRepository
 import com.bithumbsystems.cms.persistence.redis.RedisOperator
 import com.bithumbsystems.cms.persistence.redis.model.RedisBoard
 import com.bithumbsystems.cms.persistence.redis.model.toRedis
+import com.fasterxml.jackson.core.type.TypeReference
 import com.github.michaelbull.result.Result
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.map
@@ -36,7 +37,9 @@ class EventService(
             action = {
                 val pageable = PageRequest.of(boardRequest.pageNo, boardRequest.pageSize)
 
-                val topList: List<BoardResponse> = redisOperator.getTopList(redisKey, RedisBoard::class.java).map { it.toResponse() }
+                val typeReference = object : TypeReference<List<RedisBoard>>() {}
+
+                val topList: List<BoardResponse> = redisOperator.getTopList(redisKey, typeReference).map { it.toResponse() }
 
                 val cmsEventList = cmsEventRepository.findCmsEventSearchTextAndPaging(boardRequest.searchText, pageable).map {
                     it.toResponse()

@@ -12,6 +12,7 @@ import com.bithumbsystems.cms.persistence.redis.RedisOperator
 import com.bithumbsystems.cms.persistence.redis.model.RedisNotice
 import com.bithumbsystems.cms.persistence.redis.model.toRedis
 import com.bithumbsystems.cms.persistence.redis.model.toRedisCategory
+import com.fasterxml.jackson.core.type.TypeReference
 import com.github.michaelbull.result.Result
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
@@ -40,7 +41,9 @@ class NoticeService(
             action = {
                 val pageable = PageRequest.of(boardRequest.pageNo, boardRequest.pageSize)
 
-                val topList: List<BoardResponse> = redisOperator.getTopList(redisKey, RedisNotice::class.java).map { it.toResponse() }
+                val typeReference = object : TypeReference<List<RedisNotice>>() {}
+
+                val topList: List<BoardResponse> = redisOperator.getTopList(redisKey, typeReference).map { it.toResponse() }
 
                 val cmsNoticeList = cmsNoticeRepository.findCmsNoticeSearchTextAndPaging(boardRequest.categoryId, boardRequest.searchText, pageable)
                     .map {
