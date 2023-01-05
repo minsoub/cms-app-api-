@@ -4,14 +4,17 @@ import com.bithumbsystems.cms.api.config.operator.ServiceOperator.executeIn
 import com.bithumbsystems.cms.api.model.request.BoardRequest
 import com.bithumbsystems.cms.api.model.response.*
 import com.bithumbsystems.cms.api.util.RedisKey
+import com.bithumbsystems.cms.persistence.mongo.entity.CmsNotice
 import com.bithumbsystems.cms.persistence.mongo.repository.CmsFileInfoRepository
 import com.bithumbsystems.cms.persistence.mongo.repository.CmsNoticeCategoryRepository
 import com.bithumbsystems.cms.persistence.mongo.repository.CmsNoticeRepository
 import com.bithumbsystems.cms.persistence.redis.RedisOperator
-import com.bithumbsystems.cms.persistence.redis.model.toNoticeFix
+import com.bithumbsystems.cms.persistence.redis.model.RedisNotice
+import com.bithumbsystems.cms.persistence.redis.model.toRedis
 import com.bithumbsystems.cms.persistence.redis.model.toRedisCategory
 import com.github.michaelbull.result.Result
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactor.awaitSingle
@@ -37,7 +40,7 @@ class NoticeService(
             action = {
                 val pageable = PageRequest.of(boardRequest.pageNo, boardRequest.pageSize)
 
-                val topList: List<BoardResponse> = redisOperator.getTopList(redisKey).map { it.toResponse() }
+                val topList: List<BoardResponse> = redisOperator.getTopList(redisKey, RedisNotice::class.java).map { it.toResponse() }
 
                 val cmsNoticeList = cmsNoticeRepository.findCmsNoticeSearchTextAndPaging(boardRequest.categoryId, boardRequest.searchText, pageable)
                     .map {
@@ -56,11 +59,7 @@ class NoticeService(
             fallback = {
                 val pageable = PageRequest.of(boardRequest.pageNo, boardRequest.pageSize)
 
-                var topList = cmsNoticeRepository.findCmsNoticeByIsFixTopAndIsShowOrderByScreenDateDesc().map {
-                    it.toResponse()
-                }.toList()
-
-                topList = getNoticeFixListWithCategory(topList)
+                val topList = cmsNoticeRepository.findCmsNoticeByIsFixTopAndIsShowOrderByScreenDateDesc()
 
                 val cmsNoticeList = cmsNoticeRepository.findCmsNoticeSearchTextAndPaging(boardRequest.categoryId, boardRequest.searchText, pageable)
                     .map {
@@ -68,7 +67,7 @@ class NoticeService(
                     }.toList()
 
                 DataResponse(
-                    topList,
+                    getNoticeFixListWithCategory(topList),
                     PageImpl(
                         cmsNoticeList,
                         pageable,
@@ -77,16 +76,12 @@ class NoticeService(
                 )
             },
             afterJob = {
-                var fixList = cmsNoticeRepository.findCmsNoticeByIsFixTopAndIsShowOrderByScreenDateDesc().map {
-                    it.toResponse()
-                }.toList()
+                val fixList = cmsNoticeRepository.findCmsNoticeByIsFixTopAndIsShowOrderByScreenDateDesc()
 
-                fixList = getNoticeFixListWithCategory(fixList)
-
-                val redisNoticeFix = fixList.map {
-                    it.toNoticeFix()
+                val redisNoticeFix = getNoticeFixListWithCategory(cmsNoticeFlow = fixList).map {
+                    it.toRedis()
                 }
-                redisOperator.setTopList(redisKey, redisNoticeFix)
+                redisOperator.setTopList(redisKey, redisNoticeFix, RedisNotice::class.java)
             }
         )
 
@@ -119,18 +114,22 @@ class NoticeService(
             }
         )
 
-    suspend fun getNoticeFixListWithCategory(boardResponseList: List<BoardResponse>): List<BoardResponse> {
+    suspend fun getNoticeFixListWithCategory(cmsNoticeFlow: Flow<CmsNotice>): List<NoticeFixResponse> {
 
         val category = cmsNoticeCategoryRepository.findAll().toList()
 
-        boardResponseList.map {
-            it.categoryNames = category.filter { cmsNoticeCategory ->
-                it.categoryIds!!.contains(cmsNoticeCategory.id)
-            }.map {
-                it.name
-            }
-        }
-        return boardResponseList
+        return cmsNoticeFlow.map { cmsNotice ->
+            NoticeFixResponse(
+                id = cmsNotice.id,
+                title = cmsNotice.title,
+                createDate = cmsNotice.createDate,
+                categoryNames = category.filter { cmsNoticeCategory ->
+                    cmsNotice.categoryIds.contains(cmsNoticeCategory.id)
+                }.map {
+                    it.name
+                }
+            )
+        }.toList()
     }
 
     suspend fun getNoticeCategoryList(): Result<List<NoticeCategoryResponse>?, ErrorData> =

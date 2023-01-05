@@ -12,7 +12,7 @@ data class BoardDetailResponse(
     var categoryIds: List<String>? = null,
     val content: String,
     val readCount: Long,
-    val screenDate: LocalDateTime,
+    val createDate: LocalDateTime,
     val shareTitle: String? = null,
     val shareDescription: String? = null,
     val shareFileId: String? = null,
@@ -25,7 +25,7 @@ data class BoardDetailResponse(
 fun CmsNotice.toDetailResponse() = BoardDetailResponse(
     id = id,
     title = title,
-    screenDate = screenDate,
+    createDate = createDate,
     categoryIds = categoryIds,
     content = content,
     readCount = readCount,
@@ -39,7 +39,7 @@ fun CmsNotice.toDetailResponse() = BoardDetailResponse(
 fun CmsPressRelease.toDetailResponse() = BoardDetailResponse(
     id = id,
     title = title,
-    screenDate = screenDate,
+    createDate = createDate,
     content = content,
     readCount = readCount,
     shareTitle = shareTitle,
@@ -52,7 +52,7 @@ fun CmsPressRelease.toDetailResponse() = BoardDetailResponse(
 fun CmsEvent.toDetailResponse() = BoardDetailResponse(
     id = id,
     title = title,
-    screenDate = screenDate,
+    createDate = createDate,
     content = content,
     readCount = readCount,
     shareTitle = shareTitle,
@@ -65,7 +65,7 @@ fun CmsEvent.toDetailResponse() = BoardDetailResponse(
 fun CmsReviewReport.toDetailResponse() = BoardDetailResponse(
     id = id,
     title = title,
-    screenDate = screenDate,
+    createDate = createDate,
     content = content,
     readCount = readCount,
     shareTitle = shareTitle,

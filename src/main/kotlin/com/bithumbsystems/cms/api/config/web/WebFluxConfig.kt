@@ -2,7 +2,6 @@ package com.bithumbsystems.cms.api.config.web
 
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.databind.PropertyNamingStrategies
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.databind.deser.std.StringDeserializer
 import com.fasterxml.jackson.databind.module.SimpleModule
@@ -66,7 +65,6 @@ class WebFluxConfig(
         objectMapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS)
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
         objectMapper.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true)
-        objectMapper.propertyNamingStrategy = PropertyNamingStrategies.SNAKE_CASE
         return objectMapper
     }
 

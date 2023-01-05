@@ -38,7 +38,7 @@ class CmsNoticeRepositoryImpl(
         }
 
         categoryId?.let {
-            andOperator.add(Criteria.where("category_id").`in`(categoryId))
+            andOperator.add(Criteria.where("category_ids").`in`(categoryId))
         }
 
         andOperator.add(Criteria.where("is_show").`is`(true))
