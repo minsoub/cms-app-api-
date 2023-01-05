@@ -1,9 +1,6 @@
 package com.bithumbsystems.cms.api.model.response
 
-import com.bithumbsystems.cms.persistence.mongo.entity.CmsEvent
-import com.bithumbsystems.cms.persistence.mongo.entity.CmsNotice
-import com.bithumbsystems.cms.persistence.mongo.entity.CmsPressRelease
-import com.bithumbsystems.cms.persistence.mongo.entity.CmsReviewReport
+import com.bithumbsystems.cms.persistence.mongo.entity.*
 import io.swagger.v3.oas.annotations.media.Schema
 import java.time.LocalDateTime
 
@@ -66,6 +63,19 @@ fun CmsEvent.toDetailResponse() = BoardDetailResponse(
 )
 
 fun CmsReviewReport.toDetailResponse() = BoardDetailResponse(
+    id = id,
+    title = title,
+    screenDate = screenDate,
+    content = content,
+    readCount = readCount,
+    shareTitle = shareTitle,
+    shareDescription = shareDescription,
+    shareFileId = shareFileId,
+    shareButtonName = shareButtonName,
+    fileId = fileId
+)
+
+fun CmsInvestmentWarning.toDetailResponse() = BoardDetailResponse(
     id = id,
     title = title,
     screenDate = screenDate,
