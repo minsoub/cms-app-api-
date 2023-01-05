@@ -16,9 +16,9 @@ class RedisOperator(
     private val redissonReactiveClient: RedissonReactiveClient,
     private val objectMapper: ObjectMapper,
 ) {
-    suspend fun <T> getTopList(redisKey: String, clazz: Class<T>): List<T> {
+    suspend fun <T> getTopList(redisKey: String, typeReference: TypeReference<List<T>>): List<T> {
         return redissonReactiveClient
-            .getBucket<List<T>>(redisKey, TypedJsonJacksonCodec(clazz, objectMapper))
+            .getBucket<List<T>>(redisKey, TypedJsonJacksonCodec(typeReference, objectMapper))
             .get()
             .awaitSingle()
     }

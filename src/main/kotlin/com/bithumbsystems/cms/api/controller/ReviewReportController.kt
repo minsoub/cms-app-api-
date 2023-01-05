@@ -37,21 +37,21 @@ class ReviewReportController(
     @Parameters(
         Parameter(
             description = "검색어",
-            name = "search_text",
+            name = "searchText",
             `in` = ParameterIn.QUERY,
             required = false,
             schema = Schema(implementation = String::class)
         ),
         Parameter(
             description = "페이지 번호",
-            name = "page_no",
+            name = "pageNo",
             `in` = ParameterIn.QUERY,
             schema = Schema(defaultValue = "0", implementation = Int::class),
             example = "0"
         ),
         Parameter(
             description = "페이지당 개시글 갯수",
-            name = "page_size",
+            name = "pageSize",
             `in` = ParameterIn.QUERY,
             schema = Schema(defaultValue = "12", implementation = Int::class),
             example = "12"
