@@ -87,3 +87,16 @@ fun CmsInvestmentWarning.toDetailResponse() = BoardDetailResponse(
     shareButtonName = shareButtonName,
     fileId = fileId
 )
+
+fun CmsEconomicResearch.toDetailResponse() = BoardDetailResponse(
+    id = id,
+    title = title,
+    createDate = createDate,
+    content = content,
+    readCount = readCount,
+    shareTitle = shareTitle,
+    shareDescription = shareDescription,
+    shareFileId = shareFileId,
+    shareButtonName = shareButtonName,
+    fileId = fileId
+)
