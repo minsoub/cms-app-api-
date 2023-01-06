@@ -28,7 +28,7 @@ class EconomicResearchService(
     private val redisOperator: RedisOperator,
 ) {
 
-    private val redisKey: String = RedisKey.REDIS_EVENT_FIX_KEY
+    private val redisKey: String = RedisKey.REDIS_ECONOMIC_RESEARCH_FIX_KEY
 
     suspend fun getEconomicResearchList(
         boardRequest: BoardRequest

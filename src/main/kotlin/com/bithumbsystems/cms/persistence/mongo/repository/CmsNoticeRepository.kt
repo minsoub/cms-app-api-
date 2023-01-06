@@ -10,6 +10,8 @@ import reactor.core.publisher.Mono
 @Repository
 interface CmsNoticeRepository : CoroutineSortingRepository<CmsNotice, String>, CmsNoticeRepositoryCustom {
     fun findCmsNoticeByIsFixTopAndIsShowOrderByScreenDateDesc(isFixTop: Boolean = true, isShow: Boolean = true): Flow<CmsNotice>
+
+    fun findCmsNoticeByIsBannerAndIsShow(isBanner: Boolean = true, isShow: Boolean = true): Flow<CmsNotice>
 }
 
 interface CmsNoticeRepositoryCustom {
