@@ -14,7 +14,6 @@ import com.github.michaelbull.result.Result
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
-import kotlinx.coroutines.reactor.awaitSingle
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
@@ -50,7 +49,7 @@ class PressReleaseService(
                     PageImpl(
                         cmsPressReleaseList,
                         pageable,
-                        cmsPressReleaseRepository.countCmsPressReleaseSearchTextAndPaging(boardRequest.searchText).awaitSingle()
+                        cmsPressReleaseRepository.countCmsPressReleaseSearchTextAndPaging(boardRequest.searchText)
                     )
                 )
             },
@@ -70,7 +69,7 @@ class PressReleaseService(
                     PageImpl(
                         cmsPressReleaseList,
                         pageable,
-                        cmsPressReleaseRepository.countCmsPressReleaseSearchTextAndPaging(boardRequest.searchText).awaitSingle()
+                        cmsPressReleaseRepository.countCmsPressReleaseSearchTextAndPaging(boardRequest.searchText)
                     )
                 )
             },
@@ -108,6 +107,7 @@ class PressReleaseService(
 
                 cmsPressRelease?.let {
                     // redis 조회 수
+                    redisOperator.publish(redisKey = redisKey, id = id)
                 }
             }
         )

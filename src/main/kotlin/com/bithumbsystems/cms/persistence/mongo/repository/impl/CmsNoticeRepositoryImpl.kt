@@ -4,13 +4,13 @@ import com.bithumbsystems.cms.persistence.mongo.entity.CmsNotice
 import com.bithumbsystems.cms.persistence.mongo.repository.CmsNoticeRepositoryCustom
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.reactive.asFlow
+import kotlinx.coroutines.reactor.awaitSingle
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate
 import org.springframework.data.mongodb.core.query.Criteria
 import org.springframework.data.mongodb.core.query.Query
 import org.springframework.stereotype.Repository
-import reactor.core.publisher.Mono
 
 @Repository
 class CmsNoticeRepositoryImpl(
@@ -21,8 +21,8 @@ class CmsNoticeRepositoryImpl(
         return mongoTemplate.find(getCmsNoticeSearchTextAndPaging(categoryId, searchText).with(pageable), CmsNotice::class.java).asFlow()
     }
 
-    override fun countCmsNoticeSearchTextAndPaging(categoryId: String?, searchText: String?): Mono<Long> {
-        return mongoTemplate.count(getCmsNoticeSearchTextAndPaging(categoryId, searchText), CmsNotice::class.java)
+    override suspend fun countCmsNoticeSearchTextAndPaging(categoryId: String?, searchText: String?): Long {
+        return mongoTemplate.count(getCmsNoticeSearchTextAndPaging(categoryId, searchText), CmsNotice::class.java).awaitSingle()
     }
 
     fun getCmsNoticeSearchTextAndPaging(categoryId: String?, searchText: String?): Query {

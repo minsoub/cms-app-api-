@@ -10,7 +10,8 @@ import com.bithumbsystems.cms.persistence.mongo.repository.CmsFileInfoRepository
 import com.bithumbsystems.cms.persistence.mongo.repository.CmsNoticeCategoryRepository
 import com.bithumbsystems.cms.persistence.mongo.repository.CmsNoticeRepository
 import com.bithumbsystems.cms.persistence.redis.RedisOperator
-import com.bithumbsystems.cms.persistence.redis.model.RedisNoticeFix
+import com.bithumbsystems.cms.persistence.redis.model.RedisNotice
+import com.fasterxml.jackson.core.type.TypeReference
 import io.mockk.*
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -66,14 +67,15 @@ class NoticeServiceTest {
             createDate = LocalDateTime.now(),
             screenDate = LocalDateTime.now()
         )
-        val noticeTop = RedisNoticeFix(
+        val noticeTop = RedisNotice(
             id = "1",
             title = "title",
-            screenDate = LocalDateTime.now(),
-            categoryName = listOf("안내")
+            createDate = LocalDateTime.now(),
+            categoryNames = listOf("안내")
         )
+        val typeReference = object : TypeReference<List<RedisNotice>>() {}
 
-        coEvery { redisOperator.getTopList(REDIS_NOTICE_FIX_KEY) } returns listOf(noticeTop)
+        coEvery { redisOperator.getTopList(REDIS_NOTICE_FIX_KEY, typeReference) } returns listOf(noticeTop)
         coEvery { cmsNoticeRepository.findCmsNoticeSearchTextAndPaging("", "", PageRequest.of(0, 15)) } returns flowOf(noticeList)
         coEvery { cmsNoticeRepository.findCmsNoticeByIsFixTopAndIsShowOrderByScreenDateDesc() } returns flowOf(noticeList)
         coEvery { cmsNoticeRepository.countCmsNoticeSearchTextAndPaging("", "") } returns 1

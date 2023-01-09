@@ -18,7 +18,6 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
-import kotlinx.coroutines.reactor.awaitSingle
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
@@ -55,7 +54,7 @@ class NoticeService(
                     PageImpl(
                         cmsNoticeList,
                         pageable,
-                        cmsNoticeRepository.countCmsNoticeSearchTextAndPaging(boardRequest.categoryId, boardRequest.searchText).awaitSingle()
+                        cmsNoticeRepository.countCmsNoticeSearchTextAndPaging(boardRequest.categoryId, boardRequest.searchText)
                     )
                 )
             },
@@ -74,7 +73,7 @@ class NoticeService(
                     PageImpl(
                         cmsNoticeList,
                         pageable,
-                        cmsNoticeRepository.countCmsNoticeSearchTextAndPaging(boardRequest.categoryId, boardRequest.searchText).awaitSingle()
+                        cmsNoticeRepository.countCmsNoticeSearchTextAndPaging(boardRequest.categoryId, boardRequest.searchText)
                     )
                 )
             },
@@ -110,9 +109,9 @@ class NoticeService(
             },
             afterJob = {
                 val cmsNotice = cmsNoticeRepository.findById(id)
-
                 cmsNotice?.let {
                     // 조회 수 카운트 작업
+                    redisOperator.publish(redisKey = redisKey, id = id)
                 }
             }
         )
