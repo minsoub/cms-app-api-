@@ -6,6 +6,7 @@ import org.springframework.boot.autoconfigure.data.mongo.MongoDataAutoConfigurat
 import org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration
 import org.springframework.boot.autoconfigure.mongo.MongoReactiveAutoConfiguration
 import org.springframework.boot.autoconfigure.mongo.embedded.EmbeddedMongoAutoConfiguration
+import org.springframework.boot.context.ApplicationPidFileWriter
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan
 import org.springframework.boot.runApplication
 
@@ -24,5 +25,7 @@ import org.springframework.boot.runApplication
 class CmsAppApiApplication
 
 fun main(args: Array<String>) {
-    runApplication<CmsAppApiApplication>(*args)
+    runApplication<CmsAppApiApplication>(*args) {
+        addListeners(ApplicationPidFileWriter())
+    }
 }

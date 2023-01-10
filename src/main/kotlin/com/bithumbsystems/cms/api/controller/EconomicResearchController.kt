@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.RestController
 
 @Tag(name = "economic_research", description = "경제연구소 게시판 API")
 @RestController
-@RequestMapping("/economic_researches")
+@RequestMapping("/economic-researches")
 class EconomicResearchController(
     private val economicResearchService: EconomicResearchService
 ) {
