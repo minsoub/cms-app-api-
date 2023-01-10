@@ -4,13 +4,13 @@ import com.bithumbsystems.cms.persistence.mongo.entity.CmsEconomicResearch
 import com.bithumbsystems.cms.persistence.mongo.repository.CmsEconomicResearchRepositoryCustom
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.reactive.asFlow
+import kotlinx.coroutines.reactive.awaitSingle
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate
 import org.springframework.data.mongodb.core.query.Criteria
 import org.springframework.data.mongodb.core.query.Query
 import org.springframework.stereotype.Repository
-import reactor.core.publisher.Mono
 
 @Repository
 class CmsEconomicResearchRepositoryImpl(
@@ -21,8 +21,8 @@ class CmsEconomicResearchRepositoryImpl(
         return mongoTemplate.find(getCmsPressReleaseSearchTextAndPaging(searchText).with(pageable), CmsEconomicResearch::class.java).asFlow()
     }
 
-    override fun countCmsEconomicResearchSearchTextAndPaging(searchText: String?): Mono<Long> {
-        return mongoTemplate.count(getCmsPressReleaseSearchTextAndPaging(searchText), CmsEconomicResearch::class.java)
+    override suspend fun countCmsEconomicResearchSearchTextAndPaging(searchText: String?): Long {
+        return mongoTemplate.count(getCmsPressReleaseSearchTextAndPaging(searchText), CmsEconomicResearch::class.java).awaitSingle()
     }
 
     fun getCmsPressReleaseSearchTextAndPaging(searchText: String?): Query {

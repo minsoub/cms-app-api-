@@ -5,7 +5,6 @@ import kotlinx.coroutines.flow.Flow
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.repository.kotlin.CoroutineSortingRepository
 import org.springframework.stereotype.Repository
-import reactor.core.publisher.Mono
 
 @Repository
 interface CmsEconomicResearchRepository : CoroutineSortingRepository<CmsEconomicResearch, String>, CmsEconomicResearchRepositoryCustom {
@@ -15,5 +14,5 @@ interface CmsEconomicResearchRepository : CoroutineSortingRepository<CmsEconomic
 interface CmsEconomicResearchRepositoryCustom {
     fun findCmsEconomicResearchSearchTextAndPaging(searchText: String?, pageable: PageRequest): Flow<CmsEconomicResearch>
 
-    fun countCmsEconomicResearchSearchTextAndPaging(searchText: String?): Mono<Long>
+    suspend fun countCmsEconomicResearchSearchTextAndPaging(searchText: String?): Long
 }
