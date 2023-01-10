@@ -6,6 +6,7 @@ import com.bithumbsystems.cms.api.model.request.BannerRequest
 import com.bithumbsystems.cms.api.model.response.BannerResponse
 import com.bithumbsystems.cms.api.model.response.Response
 import com.bithumbsystems.cms.api.service.MainService
+import com.bithumbsystems.cms.api.util.RedisRecentKey
 import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.Parameters
 import io.swagger.v3.oas.annotations.enums.ParameterIn
@@ -58,8 +59,7 @@ class MainController(
             description = "게시판 종류",
             name = "boardType",
             `in` = ParameterIn.QUERY,
-            required = false,
-            schema = Schema(implementation = String::class)
+            schema = Schema(implementation = RedisRecentKey::class)
         ),
         Parameter(
             description = "게시글 갯수",

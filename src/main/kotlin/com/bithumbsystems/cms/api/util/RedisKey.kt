@@ -16,7 +16,7 @@ object RedisReadCountKey {
     const val REDIS_NOTICE_READ_COUNT_KEY = "CMS_NOTICE_READ_COUNT"
 }
 
-enum class RedisRecentKey {
-    CMS_NOTICE_RECENT,
-    CMS_PRESS_RELEASE_RECENT
+enum class RedisRecentKey(val key: String) {
+    NOTICE("CMS_NOTICE_RECENT"),
+    PRESS_RELEASE("CMS_PRESS_RELEASE_RECENT")
 }

@@ -12,9 +12,9 @@ import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
-@Tag(name = "investment", description = "투자유의 게시판 API")
+@Tag(name = "investment_warning", description = "투자유의 게시판 API")
 @RestController
-@RequestMapping("/investment")
+@RequestMapping("/")
 class InvestmentWarningController(
     private val investmentWarningService: InvestmentWarningService
 
@@ -31,7 +31,7 @@ class InvestmentWarningController(
         ]
     )
     @Operation(method = "get", summary = "투자유의 상세", description = "투자유의 상세 페이지")
-    @GetMapping("")
+    @GetMapping("/investment-warning")
     suspend fun investmentWarningDetail(): ResponseEntity<Response<Any>> = execute {
         investmentWarningService.getInvestmentWarning()
     }

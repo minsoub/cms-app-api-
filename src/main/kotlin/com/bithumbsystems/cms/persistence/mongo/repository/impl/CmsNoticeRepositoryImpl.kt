@@ -25,6 +25,10 @@ class CmsNoticeRepositoryImpl(
         return mongoTemplate.count(getCmsNoticeSearchTextAndPaging(categoryId, searchText), CmsNotice::class.java).awaitSingle()
     }
 
+    override fun findCmsNoticePaging(pageable: PageRequest): Flow<CmsNotice> {
+        return mongoTemplate.find(getCmsNoticeSearchTextAndPaging(null, null).with(pageable), CmsNotice::class.java).asFlow()
+    }
+
     fun getCmsNoticeSearchTextAndPaging(categoryId: String?, searchText: String?): Query {
         val query = Query()
         val criteria = Criteria()

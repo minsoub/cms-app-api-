@@ -17,4 +17,6 @@ interface CmsNoticeRepositoryCustom {
     fun findCmsNoticeSearchTextAndPaging(categoryId: String?, searchText: String?, pageable: PageRequest): Flow<CmsNotice>
 
     suspend fun countCmsNoticeSearchTextAndPaging(categoryId: String?, searchText: String?): Long
+
+    fun findCmsNoticePaging(pageable: PageRequest): Flow<CmsNotice>
 }

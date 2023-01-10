@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.RestController
 
 @Tag(name = "event", description = "이벤트 게시판 API")
 @RestController
-@RequestMapping("/event")
+@RequestMapping("/events")
 class EventController(
     private val eventService: EventService
 ) {
@@ -63,7 +63,7 @@ class EventController(
         ),
     )
     @Operation(method = "get", summary = "이벤트 리스트", description = "이벤트 고정 게시글 및 페이지에 해당하는 게시글 출력")
-    @GetMapping("/list")
+    @GetMapping("")
     suspend fun eventList(
         @QueryParam
         @Parameter(hidden = true)
@@ -87,7 +87,7 @@ class EventController(
         Parameter(description = "게시글 아이디", name = "id", `in` = ParameterIn.PATH, schema = Schema(implementation = String::class)),
     )
     @Operation(method = "get", summary = "이벤트 상세", description = "이벤트 상세 페이지")
-    @GetMapping("/detail/{id}")
+    @GetMapping("/{id}")
     suspend fun eventDetail(
         @PathVariable
         id: String

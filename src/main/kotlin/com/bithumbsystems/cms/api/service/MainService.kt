@@ -4,7 +4,6 @@ import com.bithumbsystems.cms.api.config.operator.ServiceOperator.executeIn
 import com.bithumbsystems.cms.api.model.request.BannerRequest
 import com.bithumbsystems.cms.api.model.response.*
 import com.bithumbsystems.cms.api.util.RedisKey
-import com.bithumbsystems.cms.api.util.RedisRecentKey
 import com.bithumbsystems.cms.persistence.mongo.repository.CmsNoticeRepository
 import com.bithumbsystems.cms.persistence.redis.RedisOperator
 import com.bithumbsystems.cms.persistence.redis.model.RedisBanner
@@ -13,6 +12,7 @@ import com.github.michaelbull.result.Result
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
+import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
 
 @Service
@@ -47,18 +47,33 @@ class MainService(
 
     suspend fun getMainRecentBoard(
         bannerRequest: BannerRequest
-    ): Result<Any?, ErrorData> =
+    ): Result<List<BannerResponse>?, ErrorData> =
         executeIn(
             dispatcher = ioDispatcher,
             action = {
-                val redisKey = when (bannerRequest.boardType) {
-                    RedisRecentKey.CMS_NOTICE_RECENT -> "CMS_NOTICE_RECENT"
-                    RedisRecentKey.CMS_PRESS_RELEASE_RECENT -> "CMS_PRESS_RELEASE_RECENT"
-                }
+                val key = bannerRequest.boardType.key
+
+                val typeReference = object : TypeReference<List<RedisBanner>>() {}
+
+                val recentList: List<BannerResponse> = redisOperator.getTopList(key, typeReference).map { it.toResponse() }
+
+                recentList.subList(0, bannerRequest.pageSize)
             },
             fallback = {
+                val pageable = PageRequest.of(0, bannerRequest.pageSize)
+
+                val recentList = noticeRepository.findCmsNoticePaging(pageable).map { it.toBannerResponse() }.toList()
+
+                recentList
             },
             afterJob = {
+                val key = bannerRequest.boardType.key
+
+                val pageable = PageRequest.of(0, bannerRequest.pageSize)
+
+                val recentList = noticeRepository.findCmsNoticePaging(pageable).map { it.toBannerResponse() }.toList()
+
+                redisOperator.setTopList(key, recentList, BannerResponse::class.java)
             }
         )
 }

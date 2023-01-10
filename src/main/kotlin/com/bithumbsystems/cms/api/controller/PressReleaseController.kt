@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.RestController
 
 @Tag(name = "press_release", description = "보도자료 게시판 API")
 @RestController
-@RequestMapping("/press")
+@RequestMapping("/press-releases")
 class PressReleaseController(
     private val pressReleaseService: PressReleaseService
 ) {
@@ -63,7 +63,7 @@ class PressReleaseController(
         ),
     )
     @Operation(method = "get", summary = "보도자료 리스트", description = "보도자료 고정 게시글 및 페이지에 해당하는 게시글 출력")
-    @GetMapping("/list")
+    @GetMapping("")
     suspend fun pressReleaseList(
         @QueryParam
         @Parameter(hidden = true)
@@ -87,7 +87,7 @@ class PressReleaseController(
         Parameter(description = "게시글 아이디", name = "id", `in` = ParameterIn.PATH, schema = Schema(implementation = String::class)),
     )
     @Operation(method = "get", summary = "보도자료 상세", description = "보도자료 상세 페이지")
-    @GetMapping("/detail/{id}")
+    @GetMapping("/{id}")
     suspend fun pressReleaseDetail(
         @PathVariable
         id: String

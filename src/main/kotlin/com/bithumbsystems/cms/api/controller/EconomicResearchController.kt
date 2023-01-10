@@ -22,9 +22,9 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
-@Tag(name = "lab", description = "경제연구소 게시판 API")
+@Tag(name = "economic_research", description = "경제연구소 게시판 API")
 @RestController
-@RequestMapping("/lab")
+@RequestMapping("/economic_researches")
 class EconomicResearchController(
     private val economicResearchService: EconomicResearchService
 ) {
@@ -63,7 +63,7 @@ class EconomicResearchController(
         ),
     )
     @Operation(method = "get", summary = "경제연구소 리스트", description = "경제연구소 고정 게시글 및 페이지에 해당하는 게시글 출력")
-    @GetMapping("/list")
+    @GetMapping("")
     suspend fun economicResearchList(
         @QueryParam
         @Parameter(hidden = true)
@@ -87,7 +87,7 @@ class EconomicResearchController(
         Parameter(description = "게시글 아이디", name = "id", `in` = ParameterIn.PATH, schema = Schema(implementation = String::class)),
     )
     @Operation(method = "get", summary = "경제연구소 상세", description = "경제연구소 상세 페이지")
-    @GetMapping("/detail/{id}")
+    @GetMapping("/{id}")
     suspend fun economicResearchDetail(
         @PathVariable
         id: String
