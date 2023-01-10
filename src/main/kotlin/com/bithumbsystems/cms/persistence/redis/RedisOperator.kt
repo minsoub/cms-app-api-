@@ -1,6 +1,7 @@
 package com.bithumbsystems.cms.persistence.redis
 
 import com.bithumbsystems.cms.api.model.response.NoticeCategoryResponse
+import com.bithumbsystems.cms.api.util.Logger
 import com.bithumbsystems.cms.api.util.RedisKey
 import com.bithumbsystems.cms.persistence.redis.model.RedisNoticeCategory
 import com.fasterxml.jackson.core.type.TypeReference
@@ -16,6 +17,8 @@ class RedisOperator(
     private val redissonReactiveClient: RedissonReactiveClient,
     private val objectMapper: ObjectMapper,
 ) {
+    private val logger by Logger()
+
     suspend fun <T> getTopList(redisKey: String, typeReference: TypeReference<List<T>>): List<T> {
         return redissonReactiveClient
             .getBucket<List<T>>(redisKey, TypedJsonJacksonCodec(typeReference, objectMapper))
@@ -47,4 +50,11 @@ class RedisOperator(
 
         return bucket.set(categoryList).awaitSingle()
     }
+
+    suspend fun publish(redisKey: String, id: String) =
+        kotlin.runCatching {
+            redissonReactiveClient.getTopic(redisKey + "_TOPIC").publish(id).awaitSingle()
+        }.also {
+            logger.error("[redis publish] topic: $redisKey, id: %$id")
+        }
 }

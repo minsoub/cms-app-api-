@@ -4,13 +4,13 @@ import com.bithumbsystems.cms.persistence.mongo.entity.CmsEvent
 import com.bithumbsystems.cms.persistence.mongo.repository.CmsEventRepositoryCustom
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.reactive.asFlow
+import kotlinx.coroutines.reactive.awaitSingle
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate
 import org.springframework.data.mongodb.core.query.Criteria
 import org.springframework.data.mongodb.core.query.Query
 import org.springframework.stereotype.Repository
-import reactor.core.publisher.Mono
 
 @Repository
 class CmsEventRepositoryImpl(
@@ -21,8 +21,8 @@ class CmsEventRepositoryImpl(
         return mongoTemplate.find(getCmsPressReleaseSearchTextAndPaging(searchText).with(pageable), CmsEvent::class.java).asFlow()
     }
 
-    override fun countCmsEventSearchTextAndPaging(searchText: String?): Mono<Long> {
-        return mongoTemplate.count(getCmsPressReleaseSearchTextAndPaging(searchText), CmsEvent::class.java)
+    override suspend fun countCmsEventSearchTextAndPaging(searchText: String?): Long {
+        return mongoTemplate.count(getCmsPressReleaseSearchTextAndPaging(searchText), CmsEvent::class.java).awaitSingle()
     }
 
     fun getCmsPressReleaseSearchTextAndPaging(searchText: String?): Query {

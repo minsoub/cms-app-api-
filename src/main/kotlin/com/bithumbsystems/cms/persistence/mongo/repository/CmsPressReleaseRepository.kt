@@ -5,7 +5,6 @@ import kotlinx.coroutines.flow.Flow
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.repository.kotlin.CoroutineSortingRepository
 import org.springframework.stereotype.Repository
-import reactor.core.publisher.Mono
 
 @Repository
 interface CmsPressReleaseRepository : CoroutineSortingRepository<CmsPressRelease, String>, CmsPressReleaseRepositoryCustom {
@@ -15,5 +14,5 @@ interface CmsPressReleaseRepository : CoroutineSortingRepository<CmsPressRelease
 interface CmsPressReleaseRepositoryCustom {
     fun findCmsPressReleaseSearchTextAndPaging(searchText: String?, pageable: PageRequest): Flow<CmsPressRelease>
 
-    fun countCmsPressReleaseSearchTextAndPaging(searchText: String?): Mono<Long>
+    suspend fun countCmsPressReleaseSearchTextAndPaging(searchText: String?): Long
 }

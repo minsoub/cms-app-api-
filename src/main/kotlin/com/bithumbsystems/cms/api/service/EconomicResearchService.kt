@@ -4,8 +4,8 @@ import com.bithumbsystems.cms.api.config.operator.ServiceOperator.executeIn
 import com.bithumbsystems.cms.api.model.request.BoardRequest
 import com.bithumbsystems.cms.api.model.response.*
 import com.bithumbsystems.cms.api.util.RedisKey
-import com.bithumbsystems.cms.persistence.mongo.repository.CmsFileInfoRepository
 import com.bithumbsystems.cms.persistence.mongo.repository.CmsEconomicResearchRepository
+import com.bithumbsystems.cms.persistence.mongo.repository.CmsFileInfoRepository
 import com.bithumbsystems.cms.persistence.redis.RedisOperator
 import com.bithumbsystems.cms.persistence.redis.model.RedisBoard
 import com.bithumbsystems.cms.persistence.redis.model.RedisThumbnail
@@ -15,7 +15,6 @@ import com.github.michaelbull.result.Result
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
-import kotlinx.coroutines.reactor.awaitSingle
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
@@ -51,7 +50,7 @@ class EconomicResearchService(
                     PageImpl(
                         cmsEventList,
                         pageable,
-                        cmsEconomicResearchRepository.countCmsEconomicResearchSearchTextAndPaging(boardRequest.searchText).awaitSingle()
+                        cmsEconomicResearchRepository.countCmsEconomicResearchSearchTextAndPaging(boardRequest.searchText)
                     )
                 )
             },
@@ -71,7 +70,7 @@ class EconomicResearchService(
                     PageImpl(
                         cmsEventList,
                         pageable,
-                        cmsEconomicResearchRepository.countCmsEconomicResearchSearchTextAndPaging(boardRequest.searchText).awaitSingle()
+                        cmsEconomicResearchRepository.countCmsEconomicResearchSearchTextAndPaging(boardRequest.searchText)
                     )
                 )
             },
@@ -109,6 +108,7 @@ class EconomicResearchService(
 
                 cmsPressRelease?.let {
                     // redis 조회 수
+                    redisOperator.publish(redisKey = redisKey, id = id)
                 }
             }
         )
