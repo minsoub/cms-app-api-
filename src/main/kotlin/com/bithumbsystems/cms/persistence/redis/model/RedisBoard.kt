@@ -25,6 +25,11 @@ data class RedisThumbnail(
     val createDate: LocalDateTime
 )
 
+data class RedisBanner(
+    val id: String,
+    val title: String
+)
+
 fun BoardResponse.toRedis() = RedisBoard(
     id = id,
     title = title,
@@ -43,4 +48,9 @@ fun BoardThumbnailResponse.toRedis() = RedisThumbnail(
     title = title,
     thumbnailUrl = thumbnailUrl,
     createDate = createDate,
+)
+
+fun BoardResponse.toRedisBanner() = RedisBanner(
+    id = id,
+    title = title
 )

@@ -20,12 +20,10 @@ import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
 @Tag(name = "notice", description = "공지사항 게시판 API")
 @RestController
-@RequestMapping("/notice")
 class NoticeController(
     private val noticeService: NoticeService
 ) {
@@ -71,7 +69,7 @@ class NoticeController(
         ),
     )
     @Operation(method = "get", summary = "공지사항 리스트", description = "공지사항 고정 게시글 및 페이지에 해당하는 게시글 출력")
-    @GetMapping("/list")
+    @GetMapping("/notices")
     suspend fun noticeList(
         @QueryParam
         @Parameter(hidden = true)
@@ -95,7 +93,7 @@ class NoticeController(
         Parameter(description = "게시글 아이디", name = "id", `in` = ParameterIn.PATH, schema = Schema(implementation = String::class)),
     )
     @Operation(method = "get", summary = "공지사항 상세", description = "공지사항 상세 페이지")
-    @GetMapping("/detail/{id}")
+    @GetMapping("/notices/{id}")
     suspend fun noticeDetail(
         @PathVariable
         id: String
@@ -115,7 +113,7 @@ class NoticeController(
         ]
     )
     @Operation(method = "get", summary = "카테고리 리스트", description = "카테고리 리스트")
-    @GetMapping("/category")
+    @GetMapping("/categories")
     suspend fun noticeCategory(): ResponseEntity<Response<Any>> = execute {
         noticeService.getNoticeCategoryList()
     }

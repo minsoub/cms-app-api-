@@ -9,10 +9,14 @@ import org.springframework.stereotype.Repository
 @Repository
 interface CmsNoticeRepository : CoroutineSortingRepository<CmsNotice, String>, CmsNoticeRepositoryCustom {
     fun findCmsNoticeByIsFixTopAndIsShowOrderByScreenDateDesc(isFixTop: Boolean = true, isShow: Boolean = true): Flow<CmsNotice>
+
+    fun findCmsNoticeByIsBannerAndIsShow(isBanner: Boolean = true, isShow: Boolean = true): Flow<CmsNotice>
 }
 
 interface CmsNoticeRepositoryCustom {
     fun findCmsNoticeSearchTextAndPaging(categoryId: String?, searchText: String?, pageable: PageRequest): Flow<CmsNotice>
 
     suspend fun countCmsNoticeSearchTextAndPaging(categoryId: String?, searchText: String?): Long
+
+    fun findCmsNoticePaging(pageable: PageRequest): Flow<CmsNotice>
 }

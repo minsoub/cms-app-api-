@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.*
 
 @Tag(name = "review_report", description = "가상자산 게시판 API")
 @RestController
-@RequestMapping("/report")
+@RequestMapping("/review-reports")
 class ReviewReportController(
     private val reviewReportService: ReviewReportService
 ) {
@@ -58,7 +58,7 @@ class ReviewReportController(
         ),
     )
     @Operation(method = "get", summary = "가상자산 리스트", description = "가상자산 고정 게시글 및 페이지에 해당하는 게시글 출력")
-    @GetMapping("/list")
+    @GetMapping("")
     suspend fun reviewReportList(
         @QueryParam
         @Parameter(hidden = true)
@@ -82,7 +82,7 @@ class ReviewReportController(
         Parameter(description = "게시글 아이디", name = "id", `in` = ParameterIn.PATH, schema = Schema(implementation = String::class)),
     )
     @Operation(method = "get", summary = "가상자산 상세", description = "가상자산 상세 페이지")
-    @GetMapping("/detail/{id}")
+    @GetMapping("/{id}")
     suspend fun reviewReportDetail(
         @PathVariable
         id: String
