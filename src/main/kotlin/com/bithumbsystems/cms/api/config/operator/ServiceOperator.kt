@@ -110,12 +110,12 @@ object ServiceOperator {
         action: suspend () -> T?,
         afterJob: suspend () -> Unit
     ): Result<T?, ErrorData> = runSuspendCatching {
-        logger.info("action start")
+        logger.debug("action start")
         val result = action()
         supervisorScope {
             launch(dispatcher) {
                 result?.apply {
-                    logger.info("afterjob start")
+                    logger.debug("afterjob start")
                     afterJob()
                 }
             }
@@ -131,16 +131,51 @@ object ServiceOperator {
         fallback: suspend () -> T?,
         afterJob: suspend (T) -> Unit
     ): Result<T?, ErrorData> = runSuspendCatching {
-        logger.info("action start")
+        logger.debug("action start")
         action()
     }.recover {
-        logger.info("fallback start")
+        logger.debug("fallback start")
         val result = fallback()
         supervisorScope {
             launch(dispatcher) {
                 result?.apply {
-                    logger.info("afterjob start")
+                    logger.debug("afterjob start")
                     afterJob(result)
+                }
+            }
+        }
+        result
+    }.mapError {
+        errorHandler(it)
+    }
+
+    suspend fun <T> executeIn(
+        dispatcher: CoroutineDispatcher,
+        action: suspend () -> T?,
+        fallback: suspend () -> T?,
+        afterJob: suspend (T) -> Unit,
+        finally: suspend (T) -> Unit
+    ): Result<T?, ErrorData> = runSuspendCatching {
+        logger.debug("action start")
+        val result = action()
+        supervisorScope {
+            launch(dispatcher) {
+                result?.apply {
+                    logger.debug("afterjob start")
+                    finally(result)
+                }
+            }
+        }
+        result
+    }.recover {
+        logger.debug("fallback start")
+        val result = fallback()
+        supervisorScope {
+            launch(dispatcher) {
+                result?.apply {
+                    logger.debug("afterjob start")
+                    afterJob(result)
+                    finally(result)
                 }
             }
         }

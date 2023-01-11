@@ -4,6 +4,7 @@ import com.bithumbsystems.cms.api.config.operator.ServiceOperator.executeIn
 import com.bithumbsystems.cms.api.model.request.BoardRequest
 import com.bithumbsystems.cms.api.model.response.*
 import com.bithumbsystems.cms.api.util.RedisKey
+import com.bithumbsystems.cms.api.util.RedisReadCountKey.REDIS_EVENT_READ_COUNT_KEY
 import com.bithumbsystems.cms.persistence.mongo.repository.CmsEventRepository
 import com.bithumbsystems.cms.persistence.mongo.repository.CmsFileInfoRepository
 import com.bithumbsystems.cms.persistence.redis.RedisOperator
@@ -23,7 +24,7 @@ class EventService(
     private val ioDispatcher: CoroutineDispatcher,
     private val cmsEventRepository: CmsEventRepository,
     private val cmsFileInfoRepository: CmsFileInfoRepository,
-    private val redisOperator: RedisOperator,
+    private val redisOperator: RedisOperator
 ) {
 
     private val redisKey: String = RedisKey.REDIS_EVENT_FIX_KEY
@@ -89,9 +90,9 @@ class EventService(
         executeIn(
             dispatcher = ioDispatcher,
             action = {
-                val cmsPressRelease = cmsEventRepository.findById(id)
+                val cmsEvent = cmsEventRepository.findById(id)
 
-                val boardDetailResponse: BoardDetailResponse? = cmsPressRelease?.toDetailResponse()
+                val boardDetailResponse: BoardDetailResponse? = cmsEvent?.toDetailResponse()
 
                 boardDetailResponse?.fileId?.let {
                     val fileInfo = cmsFileInfoRepository.findById(it)
@@ -103,12 +104,7 @@ class EventService(
                 boardDetailResponse
             },
             afterJob = {
-                val cmsPressRelease = cmsEventRepository.findById(id)
-
-                cmsPressRelease?.let {
-                    // redis 조회 수
-                    redisOperator.publish(redisKey = redisKey, id = id)
-                }
+                redisOperator.publish(redisKey = REDIS_EVENT_READ_COUNT_KEY, id = id)
             }
         )
 }

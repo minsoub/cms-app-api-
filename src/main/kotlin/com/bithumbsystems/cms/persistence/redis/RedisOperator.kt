@@ -19,6 +19,19 @@ class RedisOperator(
 ) {
     private val logger by Logger()
 
+    suspend fun <T> getOne(redisKey: String, typeReference: TypeReference<T>): T {
+        return redissonReactiveClient
+            .getBucket<T>(redisKey, TypedJsonJacksonCodec(typeReference, objectMapper))
+            .get()
+            .awaitSingle()
+    }
+
+    suspend fun <T> setOne(redisKey: String, value: T): Void {
+        val a = redissonReactiveClient
+            .getBucket<T>(redisKey)
+        return a.set(value).awaitSingle()
+    }
+
     suspend fun <T> getTopList(redisKey: String, typeReference: TypeReference<List<T>>): List<T> {
         return redissonReactiveClient
             .getBucket<List<T>>(redisKey, TypedJsonJacksonCodec(typeReference, objectMapper))
@@ -51,10 +64,8 @@ class RedisOperator(
         return bucket.set(categoryList).awaitSingle()
     }
 
-    suspend fun publish(redisKey: String, id: String) =
-        kotlin.runCatching {
-            redissonReactiveClient.getTopic(redisKey + "_TOPIC").publish(id).awaitSingle()
-        }.also {
-            logger.error("[redis publish] topic: $redisKey, id: %$id")
-        }
+    suspend fun publish(redisKey: String, id: String) {
+        redissonReactiveClient.getDeque<String>(redisKey).addFirst(id).subscribe()
+        redissonReactiveClient.getTopic(redisKey + "_TOPIC").publish(redisKey).awaitSingle()
+    }
 }

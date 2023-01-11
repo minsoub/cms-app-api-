@@ -4,6 +4,7 @@ import com.bithumbsystems.cms.api.config.operator.ServiceOperator.executeIn
 import com.bithumbsystems.cms.api.model.request.BoardRequest
 import com.bithumbsystems.cms.api.model.response.*
 import com.bithumbsystems.cms.api.util.RedisKey
+import com.bithumbsystems.cms.api.util.RedisReadCountKey.REDIS_ECONOMIC_RESEARCH_READ_COUNT_KEY
 import com.bithumbsystems.cms.persistence.mongo.repository.CmsEconomicResearchRepository
 import com.bithumbsystems.cms.persistence.mongo.repository.CmsFileInfoRepository
 import com.bithumbsystems.cms.persistence.redis.RedisOperator
@@ -24,7 +25,7 @@ class EconomicResearchService(
     private val ioDispatcher: CoroutineDispatcher,
     private val cmsEconomicResearchRepository: CmsEconomicResearchRepository,
     private val cmsFileInfoRepository: CmsFileInfoRepository,
-    private val redisOperator: RedisOperator,
+    private val redisOperator: RedisOperator
 ) {
 
     private val redisKey: String = RedisKey.REDIS_ECONOMIC_RESEARCH_FIX_KEY
@@ -104,12 +105,7 @@ class EconomicResearchService(
                 boardDetailResponse
             },
             afterJob = {
-                val cmsPressRelease = cmsEconomicResearchRepository.findById(id)
-
-                cmsPressRelease?.let {
-                    // redis 조회 수
-                    redisOperator.publish(redisKey = redisKey, id = id)
-                }
+                redisOperator.publish(redisKey = REDIS_ECONOMIC_RESEARCH_READ_COUNT_KEY, id = id)
             }
         )
 }

@@ -4,6 +4,7 @@ import com.bithumbsystems.cms.api.config.operator.ServiceOperator.executeIn
 import com.bithumbsystems.cms.api.model.request.BoardRequest
 import com.bithumbsystems.cms.api.model.response.*
 import com.bithumbsystems.cms.api.util.RedisKey
+import com.bithumbsystems.cms.api.util.RedisReadCountKey.REDIS_REVIEW_REPORT_READ_COUNT_KEY
 import com.bithumbsystems.cms.persistence.mongo.repository.CmsFileInfoRepository
 import com.bithumbsystems.cms.persistence.mongo.repository.CmsReviewReportRepository
 import com.bithumbsystems.cms.persistence.redis.RedisOperator
@@ -23,7 +24,7 @@ class ReviewReportService(
     private val ioDispatcher: CoroutineDispatcher,
     private val cmsReviewReportRepository: CmsReviewReportRepository,
     private val cmsFileInfoRepository: CmsFileInfoRepository,
-    private val redisOperator: RedisOperator,
+    private val redisOperator: RedisOperator
 ) {
 
     private val redisKey: String = RedisKey.REDIS_REVIEW_REPORT_FIX_KEY
@@ -104,12 +105,7 @@ class ReviewReportService(
                 boardDetailResponse
             },
             afterJob = {
-                val cmscmsReviewReport = cmsReviewReportRepository.findById(id)
-
-                cmscmsReviewReport?.let {
-                    // redis 조회 수
-                    redisOperator.publish(redisKey = redisKey, id = id)
-                }
+                redisOperator.publish(redisKey = REDIS_REVIEW_REPORT_READ_COUNT_KEY, id = id)
             }
         )
 }

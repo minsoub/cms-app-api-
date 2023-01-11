@@ -48,7 +48,7 @@ class MongoConfig(
     ): ReactiveMongoTemplate = ReactiveMongoTemplate(databaseFactory, mongoConverter)
 
     private fun getConnectionString(mongoProperties: MongoProperties): ConnectionString {
-        logger.info(
+        logger.debug(
             "mongodb://${mongoProperties.mongodbUser}:${mongoProperties.mongodbPassword}" +
                 "@${mongoProperties.mongodbUri}:${mongoProperties.mongodbPort}/$databaseName?authSource=$databaseName"
         )

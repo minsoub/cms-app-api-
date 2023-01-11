@@ -17,7 +17,7 @@ class RequestFilter : WebFilter {
 
     override fun filter(exchange: ServerWebExchange, chain: WebFilterChain): Mono<Void> {
         val requestId = UUID.randomUUID().toString()
-        logger.info("WebFilter : $requestId")
+        logger.debug("WebFilter : $requestId")
 
         return chain.filter(exchange).contextWrite {
             Context.of(CONTEXT_NAME, requestId)

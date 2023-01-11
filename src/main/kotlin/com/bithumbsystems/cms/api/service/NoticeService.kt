@@ -4,6 +4,7 @@ import com.bithumbsystems.cms.api.config.operator.ServiceOperator.executeIn
 import com.bithumbsystems.cms.api.model.request.BoardRequest
 import com.bithumbsystems.cms.api.model.response.*
 import com.bithumbsystems.cms.api.util.RedisKey
+import com.bithumbsystems.cms.api.util.RedisReadCountKey
 import com.bithumbsystems.cms.persistence.mongo.entity.CmsNotice
 import com.bithumbsystems.cms.persistence.mongo.repository.CmsFileInfoRepository
 import com.bithumbsystems.cms.persistence.mongo.repository.CmsNoticeCategoryRepository
@@ -28,7 +29,7 @@ class NoticeService(
     private val cmsNoticeRepository: CmsNoticeRepository,
     private val cmsNoticeCategoryRepository: CmsNoticeCategoryRepository,
     private val cmsFileInfoRepository: CmsFileInfoRepository,
-    private val redisOperator: RedisOperator,
+    private val redisOperator: RedisOperator
 ) {
     private val redisKey: String = RedisKey.REDIS_NOTICE_FIX_KEY
 
@@ -108,11 +109,8 @@ class NoticeService(
                 boardDetailResponse
             },
             afterJob = {
-                val cmsNotice = cmsNoticeRepository.findById(id)
-                cmsNotice?.let {
-                    // 조회 수 카운트 작업
-                    redisOperator.publish(redisKey = redisKey, id = id)
-                }
+                // 조회 수 카운트 작업
+                redisOperator.publish(redisKey = RedisReadCountKey.REDIS_NOTICE_READ_COUNT_KEY, id = id)
             }
         )
 
@@ -149,7 +147,6 @@ class NoticeService(
                 val categoryList = cmsNoticeCategoryRepository.findAll().map {
                     it.toRedisCategory()
                 }.toList()
-
                 redisOperator.setNoticeCategory(categoryList)
             }
         )
