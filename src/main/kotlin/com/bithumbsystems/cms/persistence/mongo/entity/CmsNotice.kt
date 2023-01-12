@@ -31,5 +31,7 @@ class CmsNotice(
     val updateDate: LocalDateTime? = null,
     val isUseUpdateDate: Boolean = false,
     val isAlignTop: Boolean = false,
-    val screenDate: LocalDateTime
+    val screenDate: LocalDateTime,
+    val createAccountEmail: String? = null,
+    val updateAccountEmail: String? = null
 )

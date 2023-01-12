@@ -14,5 +14,7 @@ class CmsNoticeCategory(
     val createAccountId: String,
     val createDate: LocalDateTime = LocalDateTime.now(),
     val updateAccountId: String? = null,
-    val updateDate: LocalDateTime? = null
+    val updateDate: LocalDateTime? = null,
+    val createAccountEmail: String? = null,
+    val updateAccountEmail: String? = null
 )

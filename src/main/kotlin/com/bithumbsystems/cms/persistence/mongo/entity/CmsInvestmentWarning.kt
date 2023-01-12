@@ -25,6 +25,8 @@ class CmsInvestmentWarning(
     val createAccountId: String,
     val createDate: LocalDateTime = LocalDateTime.now(),
     val updateAccountId: String? = null,
+    val createAccountEmail: String? = null,
+    val updateAccountEmail: String? = null,
     val updateDate: LocalDateTime? = null,
     val isUseUpdateDate: Boolean = false,
     val isAlignTop: Boolean = false,
