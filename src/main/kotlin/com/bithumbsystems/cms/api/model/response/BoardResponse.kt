@@ -18,14 +18,14 @@ class NoticeResponse(
     id: String,
     title: String,
     createDate: LocalDateTime,
-    var categoryIds: List<String>
+    var categoryIds: List<String>?
 ) : BoardResponse(id, title, createDate)
 
 class NoticeFixResponse(
     id: String,
     title: String,
     createDate: LocalDateTime,
-    var categoryNames: List<String>
+    var categoryNames: List<String>?
 ) : BoardResponse(id, title, createDate)
 
 class BoardThumbnailResponse(

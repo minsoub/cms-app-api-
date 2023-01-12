@@ -9,7 +9,7 @@ import java.util.*
 class CmsNotice(
     @MongoId
     val id: String = UUID.randomUUID().toString(),
-    val categoryIds: List<String>,
+    val categoryIds: List<String>? = listOf(),
     val title: String,
     val isFixTop: Boolean = false,
     val isShow: Boolean = true,
