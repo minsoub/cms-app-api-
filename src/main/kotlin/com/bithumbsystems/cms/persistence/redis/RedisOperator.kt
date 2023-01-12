@@ -1,7 +1,6 @@
 package com.bithumbsystems.cms.persistence.redis
 
 import com.bithumbsystems.cms.api.model.response.NoticeCategoryResponse
-import com.bithumbsystems.cms.api.util.Logger
 import com.bithumbsystems.cms.api.util.RedisKey
 import com.bithumbsystems.cms.persistence.redis.model.RedisNoticeCategory
 import com.fasterxml.jackson.core.type.TypeReference
@@ -17,8 +16,6 @@ class RedisOperator(
     private val redissonReactiveClient: RedissonReactiveClient,
     private val objectMapper: ObjectMapper,
 ) {
-    private val logger by Logger()
-
     suspend fun <T> getOne(redisKey: String, typeReference: TypeReference<T>): T {
         return redissonReactiveClient
             .getBucket<T>(redisKey, TypedJsonJacksonCodec(typeReference, objectMapper))
