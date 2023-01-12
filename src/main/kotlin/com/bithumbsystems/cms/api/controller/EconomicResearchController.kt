@@ -51,8 +51,8 @@ class EconomicResearchController(
             description = "페이지 번호",
             name = "pageNo",
             `in` = ParameterIn.QUERY,
-            schema = Schema(defaultValue = "0", implementation = Int::class),
-            example = "0"
+            schema = Schema(defaultValue = "1", implementation = Int::class),
+            example = "1"
         ),
         Parameter(
             description = "페이지당 개시글 갯수",

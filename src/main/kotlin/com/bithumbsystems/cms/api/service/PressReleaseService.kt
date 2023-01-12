@@ -2,6 +2,7 @@ package com.bithumbsystems.cms.api.service
 
 import com.bithumbsystems.cms.api.config.operator.ServiceOperator.executeIn
 import com.bithumbsystems.cms.api.model.request.BoardRequest
+import com.bithumbsystems.cms.api.model.request.toPageable
 import com.bithumbsystems.cms.api.model.response.*
 import com.bithumbsystems.cms.api.util.RedisKey
 import com.bithumbsystems.cms.api.util.RedisReadCountKey.REDIS_PRESS_RELEASE_READ_COUNT_KEY
@@ -16,7 +17,6 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
 import org.springframework.data.domain.PageImpl
-import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
 
 @Service
@@ -35,8 +35,7 @@ class PressReleaseService(
         executeIn(
             dispatcher = ioDispatcher,
             action = {
-                val pageable = PageRequest.of(boardRequest.pageNo, boardRequest.pageSize)
-
+                val pageable = boardRequest.toPageable()
                 val typeReference = object : TypeReference<List<RedisBoard>>() {}
 
                 val topList: List<BoardResponse> = redisOperator.getTopList(redisKey, typeReference).map { it.toResponse() }
@@ -55,8 +54,7 @@ class PressReleaseService(
                 )
             },
             fallback = {
-                val pageable = PageRequest.of(boardRequest.pageNo, boardRequest.pageSize)
-
+                val pageable = boardRequest.toPageable()
                 val topList = cmsPressReleaseRepository.findCmsPressReleaseByIsFixTopAndIsShowOrderByScreenDateDesc().map {
                     it.toResponse()
                 }.toList()

@@ -2,6 +2,7 @@ package com.bithumbsystems.cms.api.service
 
 import com.bithumbsystems.cms.api.config.operator.ServiceOperator.executeIn
 import com.bithumbsystems.cms.api.model.request.BoardRequest
+import com.bithumbsystems.cms.api.model.request.toPageable
 import com.bithumbsystems.cms.api.model.response.*
 import com.bithumbsystems.cms.api.util.RedisKey
 import com.bithumbsystems.cms.api.util.RedisReadCountKey.REDIS_ECONOMIC_RESEARCH_READ_COUNT_KEY
@@ -17,7 +18,6 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
 import org.springframework.data.domain.PageImpl
-import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
 
 @Service
@@ -36,7 +36,7 @@ class EconomicResearchService(
         executeIn(
             dispatcher = ioDispatcher,
             action = {
-                val pageable = PageRequest.of(boardRequest.pageNo, boardRequest.pageSize)
+                val pageable = boardRequest.toPageable()
 
                 val typeReference = object : TypeReference<List<RedisThumbnail>>() {}
 
@@ -56,7 +56,7 @@ class EconomicResearchService(
                 )
             },
             fallback = {
-                val pageable = PageRequest.of(boardRequest.pageNo, boardRequest.pageSize)
+                val pageable = boardRequest.toPageable()
 
                 val topList = cmsEconomicResearchRepository.findCmsEconomicResearchByIsFixTopAndIsShowOrderByScreenDateDesc().map {
                     it.toResponse()
