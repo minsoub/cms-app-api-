@@ -123,10 +123,12 @@ class NoticeService(
                 id = cmsNotice.id,
                 title = cmsNotice.title,
                 createDate = cmsNotice.createDate,
-                categoryNames = category.filter { cmsNoticeCategory ->
-                    cmsNotice.categoryIds.contains(cmsNoticeCategory.id)
-                }.map {
-                    it.name
+                categoryNames = cmsNotice.categoryIds?.let {
+                    category.filter { cmsNoticeCategory ->
+                        it.contains(cmsNoticeCategory.id)
+                    }.map {
+                        it.name
+                    }
                 }
             )
         }.toList()
