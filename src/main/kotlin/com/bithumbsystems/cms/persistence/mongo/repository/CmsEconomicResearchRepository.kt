@@ -8,7 +8,12 @@ import org.springframework.stereotype.Repository
 
 @Repository
 interface CmsEconomicResearchRepository : CoroutineSortingRepository<CmsEconomicResearch, String>, CmsEconomicResearchRepositoryCustom {
-    fun findCmsEconomicResearchByIsFixTopAndIsShowOrderByScreenDateDesc(isFixTop: Boolean = true, isShow: Boolean = true): Flow<CmsEconomicResearch>
+    fun findByIsFixTopAndIsShowAndIsDraftAndIsDeleteOrderByScreenDateDesc(
+        isFixTop: Boolean = true,
+        isShow: Boolean = true,
+        isDraft: Boolean = false,
+        isDelete: Boolean = false
+    ): Flow<CmsEconomicResearch>
 }
 
 interface CmsEconomicResearchRepositoryCustom {

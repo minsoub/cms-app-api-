@@ -8,11 +8,18 @@ import org.springframework.stereotype.Repository
 
 @Repository
 interface CmsPressReleaseRepository : CoroutineSortingRepository<CmsPressRelease, String>, CmsPressReleaseRepositoryCustom {
-    fun findCmsPressReleaseByIsFixTopAndIsShowOrderByScreenDateDesc(isFixTop: Boolean = true, isShow: Boolean = true): Flow<CmsPressRelease>
+    fun findByIsFixTopAndIsShowAndIsDraftAndIsDeleteOrderByScreenDateDesc(
+        isFixTop: Boolean = true,
+        isShow: Boolean = true,
+        isDraft: Boolean = false,
+        isDelete: Boolean = false
+    ): Flow<CmsPressRelease>
 }
 
 interface CmsPressReleaseRepositoryCustom {
     fun findCmsPressReleaseSearchTextAndPaging(searchText: String?, pageable: PageRequest): Flow<CmsPressRelease>
 
     suspend fun countCmsPressReleaseSearchTextAndPaging(searchText: String?): Long
+
+    fun findCmsPressReleasePaging(pageable: PageRequest): Flow<CmsPressRelease>
 }

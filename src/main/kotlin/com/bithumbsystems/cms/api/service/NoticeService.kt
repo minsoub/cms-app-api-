@@ -35,7 +35,7 @@ class NoticeService(
 
     suspend fun getNoticeList(
         boardRequest: BoardRequest
-    ): Result<DataResponse?, ErrorData> =
+    ): Result<DataResponse<BoardResponse>?, ErrorData> =
         executeIn(
             dispatcher = ioDispatcher,
             action = {
@@ -51,8 +51,8 @@ class NoticeService(
                     }.toList()
 
                 DataResponse(
-                    topList,
-                    PageImpl(
+                    fix = topList,
+                    list = PageImpl(
                         cmsNoticeList,
                         pageable,
                         cmsNoticeRepository.countCmsNoticeSearchTextAndPaging(boardRequest.categoryId, boardRequest.searchText)
@@ -70,8 +70,8 @@ class NoticeService(
                     }.toList()
 
                 DataResponse(
-                    getNoticeFixListWithCategory(topList),
-                    PageImpl(
+                    fix = getNoticeFixListWithCategory(topList),
+                    list = PageImpl(
                         cmsNoticeList,
                         pageable,
                         cmsNoticeRepository.countCmsNoticeSearchTextAndPaging(boardRequest.categoryId, boardRequest.searchText)
@@ -141,15 +141,12 @@ class NoticeService(
                 redisOperator.getNoticeCategory()
             },
             fallback = {
-                cmsNoticeCategoryRepository.findAll().map {
+                cmsNoticeCategoryRepository.findByIsUseTrueAndIsDeleteFalse().map {
                     it.toResponse()
                 }.toList()
             },
-            afterJob = {
-                val categoryList = cmsNoticeCategoryRepository.findAll().map {
-                    it.toRedisCategory()
-                }.toList()
-                redisOperator.setNoticeCategory(categoryList)
+            afterJob = { noticeCategoryResponses ->
+                redisOperator.setNoticeCategory(noticeCategoryResponses.map { it.toRedisCategory() })
             }
         )
 }

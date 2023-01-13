@@ -31,7 +31,7 @@ class PressReleaseService(
 
     suspend fun getPressReleaseList(
         boardRequest: BoardRequest
-    ): Result<DataResponse?, ErrorData> =
+    ): Result<DataResponse<BoardResponse>?, ErrorData> =
         executeIn(
             dispatcher = ioDispatcher,
             action = {
@@ -55,7 +55,7 @@ class PressReleaseService(
             },
             fallback = {
                 val pageable = boardRequest.toPageable()
-                val topList = cmsPressReleaseRepository.findCmsPressReleaseByIsFixTopAndIsShowOrderByScreenDateDesc().map {
+                val topList = cmsPressReleaseRepository.findByIsFixTopAndIsShowAndIsDraftAndIsDeleteOrderByScreenDateDesc().map {
                     it.toResponse()
                 }.toList()
 
@@ -72,12 +72,8 @@ class PressReleaseService(
                     )
                 )
             },
-            afterJob = {
-                val fixList = cmsPressReleaseRepository.findCmsPressReleaseByIsFixTopAndIsShowOrderByScreenDateDesc().map {
-                    it.toResponse()
-                }.toList()
-
-                val redisPressReleaseFix = fixList.map {
+            afterJob = { dataResponse ->
+                val redisPressReleaseFix = dataResponse.fix.map {
                     it.toRedis()
                 }
                 redisOperator.setTopList(redisKey, redisPressReleaseFix, RedisBoard::class.java)

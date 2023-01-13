@@ -25,6 +25,10 @@ class CmsPressReleaseRepositoryImpl(
         return mongoTemplate.count(getCmsPressReleaseSearchTextAndPaging(searchText), CmsPressRelease::class.java).awaitSingle()
     }
 
+    override fun findCmsPressReleasePaging(pageable: PageRequest): Flow<CmsPressRelease> {
+        return mongoTemplate.find(getCmsPressReleaseSearchTextAndPaging(null).with(pageable), CmsPressRelease::class.java).asFlow()
+    }
+
     fun getCmsPressReleaseSearchTextAndPaging(searchText: String?): Query {
         val query = Query()
         val criteria = Criteria()

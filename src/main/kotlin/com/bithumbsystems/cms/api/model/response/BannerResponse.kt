@@ -1,6 +1,7 @@
 package com.bithumbsystems.cms.api.model.response
 
-import com.bithumbsystems.cms.persistence.mongo.entity.*
+import com.bithumbsystems.cms.persistence.mongo.entity.CmsNotice
+import com.bithumbsystems.cms.persistence.mongo.entity.CmsPressRelease
 import com.bithumbsystems.cms.persistence.redis.model.RedisBanner
 
 open class BannerResponse(
@@ -13,7 +14,12 @@ fun RedisBanner.toResponse() = BannerResponse(
     title = title
 )
 
-fun CmsNotice.toBannerResponse() = BannerResponse(
+fun CmsNotice.toBannerResponse(categoryMap: Map<String, String>) = BannerResponse(
+    id = id,
+    title = categoryMap[id]?.let { "[$it] $title" } ?: title
+)
+
+fun CmsPressRelease.toBannerResponse() = BannerResponse(
     id = id,
     title = title
 )

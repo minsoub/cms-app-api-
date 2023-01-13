@@ -127,6 +127,32 @@ object ServiceOperator {
 
     suspend fun <T> executeIn(
         dispatcher: CoroutineDispatcher,
+        validator: suspend () -> Boolean,
+        action: suspend () -> T?,
+        fallback: suspend () -> T?,
+        afterJob: suspend (T) -> Unit
+    ): Result<T?, ErrorData> = runSuspendCatching {
+        require(validator())
+        logger.debug("action start")
+        action()
+    }.recover {
+        logger.debug("fallback start")
+        val result = fallback()
+        supervisorScope {
+            launch(dispatcher) {
+                result?.apply {
+                    logger.debug("afterjob start")
+                    afterJob(result)
+                }
+            }
+        }
+        result
+    }.mapError {
+        errorHandler(it)
+    }
+
+    suspend fun <T> executeIn(
+        dispatcher: CoroutineDispatcher,
         action: suspend () -> T?,
         fallback: suspend () -> T?,
         afterJob: suspend (T) -> Unit

@@ -31,7 +31,7 @@ class ReviewReportService(
 
     suspend fun getReviewReportList(
         boardRequest: BoardRequest
-    ): Result<DataResponse?, ErrorData> =
+    ): Result<DataResponse<BoardThumbnailResponse>?, ErrorData> =
         executeIn(
             dispatcher = ioDispatcher,
             action = {
@@ -39,15 +39,16 @@ class ReviewReportService(
 
                 val typeReference = object : TypeReference<List<RedisThumbnail>>() {}
 
-                val topList: List<BoardResponse> = redisOperator.getTopList(redisKey, typeReference).map { it.toResponse() }
+                val topList: List<BoardThumbnailResponse> = redisOperator.getTopList(redisKey, typeReference).map { it.toResponse() }
 
-                val cmsReviewReport = cmsReviewReportRepository.findCmsReviewReportSearchTextAndPaging(boardRequest.searchText, pageable).map {
-                    it.toResponse()
-                }.toList()
+                val cmsReviewReport: List<BoardThumbnailResponse> =
+                    cmsReviewReportRepository.findCmsReviewReportSearchTextAndPaging(boardRequest.searchText, pageable).map {
+                        it.toResponse()
+                    }.toList()
 
                 DataResponse(
-                    topList,
-                    PageImpl(
+                    fix = topList,
+                    list = PageImpl(
                         cmsReviewReport,
                         pageable,
                         cmsReviewReportRepository.countCmsReviewReportSearchTextAndPaging(boardRequest.searchText)
@@ -57,29 +58,27 @@ class ReviewReportService(
             fallback = {
                 val pageable = boardRequest.toPageable()
 
-                val topList = cmsReviewReportRepository.findCmsReviewReportByIsFixTopAndIsShowOrderByScreenDateDesc().map {
-                    it.toResponse()
-                }.toList()
+                val topList: List<BoardThumbnailResponse> =
+                    cmsReviewReportRepository.findByIsFixTopAndIsShowAndIsDraftAndIsDeleteOrderByScreenDateDesc().map {
+                        it.toResponse()
+                    }.toList()
 
-                val cmsReviewReport = cmsReviewReportRepository.findCmsReviewReportSearchTextAndPaging(boardRequest.searchText, pageable).map {
-                    it.toResponse()
-                }.toList()
+                val cmsReviewReport: List<BoardThumbnailResponse> =
+                    cmsReviewReportRepository.findCmsReviewReportSearchTextAndPaging(boardRequest.searchText, pageable).map {
+                        it.toResponse()
+                    }.toList()
 
                 DataResponse(
-                    topList,
-                    PageImpl(
+                    fix = topList,
+                    list = PageImpl(
                         cmsReviewReport,
                         pageable,
                         cmsReviewReportRepository.countCmsReviewReportSearchTextAndPaging(boardRequest.searchText)
                     )
                 )
             },
-            afterJob = {
-                val fixList = cmsReviewReportRepository.findCmsReviewReportByIsFixTopAndIsShowOrderByScreenDateDesc().map {
-                    it.toResponse()
-                }.toList()
-
-                val redisReviewReport = fixList.map {
+            afterJob = { dataResponse ->
+                val redisReviewReport = dataResponse.fix.map {
                     it.toRedis()
                 }
 
