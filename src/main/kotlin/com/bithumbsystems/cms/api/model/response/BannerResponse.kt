@@ -14,9 +14,9 @@ fun RedisBanner.toResponse() = BannerResponse(
     title = title
 )
 
-fun CmsNotice.toBannerResponse(categoryMap: Map<String, String>) = BannerResponse(
+fun CmsNotice.toBannerResponse(title: String) = BannerResponse(
     id = id,
-    title = categoryMap[id]?.let { "[$it] $title" } ?: title
+    title = title
 )
 
 fun CmsPressRelease.toBannerResponse() = BannerResponse(

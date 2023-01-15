@@ -8,6 +8,7 @@ import com.bithumbsystems.cms.api.model.response.toBannerResponse
 import com.bithumbsystems.cms.api.model.response.toResponse
 import com.bithumbsystems.cms.api.util.RedisKey.REDIS_NOTICE_BANNER_KEY
 import com.bithumbsystems.cms.api.util.RedisRecentKey
+import com.bithumbsystems.cms.persistence.mongo.entity.CmsNotice
 import com.bithumbsystems.cms.persistence.mongo.repository.CmsNoticeCategoryRepository
 import com.bithumbsystems.cms.persistence.mongo.repository.CmsNoticeRepository
 import com.bithumbsystems.cms.persistence.mongo.repository.CmsPressReleaseRepository
@@ -48,7 +49,7 @@ class MainService(
                     it.id to it.name
                 }.toList().toMap()
                 val banner = noticeRepository.findCmsNoticeByIsBannerAndIsShowAndIsDraftAndIsDelete().map {
-                    it.toBannerResponse(categoryMap)
+                    makeToBannerResponse(it, categoryMap)
                 }.toList()
                 banner
             },
@@ -80,11 +81,23 @@ class MainService(
                     val categoryMap = cmsNoticeCategoryRepository.findAll().map {
                         it.id to it.name
                     }.toList().toMap()
-                    noticeRepository.findCmsNoticePaging(pageable).map { it.toBannerResponse(categoryMap) }.toList()
+                    noticeRepository.findCmsNoticePaging(pageable).map {
+                        makeToBannerResponse(it, categoryMap)
+                    }.toList()
                 }
             },
             afterJob = { recentList ->
                 redisOperator.setTopList(bannerRequest.boardType.key, recentList.map { it.toRedis() }, RedisBanner::class.java)
             }
         )
+
+    private fun makeToBannerResponse(
+        it: CmsNotice,
+        categoryMap: Map<String, String>
+    ): BannerResponse {
+        val categoryTitle = it.categoryIds?.map { id ->
+            categoryMap[id]
+        }?.joinToString("/", "[", "]")
+        return it.toBannerResponse(title = (categoryTitle + it.title).trim())
+    }
 }
