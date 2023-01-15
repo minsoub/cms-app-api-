@@ -61,10 +61,11 @@ fun CmsReviewReport.toResponse() = BoardThumbnailResponse(
     thumbnailUrl = thumbnailUrl ?: thumbnailFileId?.getS3Url()
 )
 
-fun CmsEconomicResearch.toResponse() = BoardResponse(
+fun CmsEconomicResearch.toResponse() = BoardThumbnailResponse(
     id = id,
     title = title,
-    createDate = createDate
+    createDate = createDate,
+    thumbnailUrl = thumbnailUrl ?: thumbnailFileId?.getS3Url()
 )
 
 fun CmsInvestmentWarning.toResponse() = BoardResponse(
@@ -93,7 +94,7 @@ fun RedisThumbnail.toResponse() = BoardThumbnailResponse(
     thumbnailUrl = thumbnailUrl
 )
 
-data class DataResponse(
-    val fix: List<BoardResponse>,
-    val list: Page<BoardResponse>
+data class DataResponse<T, R>(
+    val fix: List<T>,
+    val list: Page<R>
 )

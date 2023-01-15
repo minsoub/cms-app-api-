@@ -8,7 +8,19 @@ import org.springframework.stereotype.Repository
 
 @Repository
 interface CmsEventRepository : CoroutineSortingRepository<CmsEvent, String>, CmsEventRepositoryCustom {
-    fun findCmsEventByIsFixTopAndIsShowOrderByScreenDateDesc(isFixTop: Boolean = true, isShow: Boolean = true): Flow<CmsEvent>
+    fun findByIsFixTopAndIsShowAndIsDraftAndIsDeleteOrderByScreenDateDesc(
+        isFixTop: Boolean = true,
+        isShow: Boolean = true,
+        isDraft: Boolean = false,
+        isDelete: Boolean = false
+    ): Flow<CmsEvent>
+
+    suspend fun findByIdAndIsShowAndIsDraftAndIsDelete(
+        id: String,
+        isShow: Boolean = true,
+        isDraft: Boolean = false,
+        isDelete: Boolean = false
+    ): CmsEvent?
 }
 
 interface CmsEventRepositoryCustom {

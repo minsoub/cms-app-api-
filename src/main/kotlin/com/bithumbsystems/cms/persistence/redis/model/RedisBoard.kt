@@ -1,5 +1,6 @@
 package com.bithumbsystems.cms.persistence.redis.model
 
+import com.bithumbsystems.cms.api.model.response.BannerResponse
 import com.bithumbsystems.cms.api.model.response.BoardResponse
 import com.bithumbsystems.cms.api.model.response.BoardThumbnailResponse
 import com.bithumbsystems.cms.api.model.response.NoticeFixResponse
@@ -27,7 +28,7 @@ data class RedisThumbnail(
 
 data class RedisBanner(
     val id: String,
-    val title: String
+    val title: String // [카테고리] title
 )
 
 fun BoardResponse.toRedis() = RedisBoard(
@@ -50,7 +51,7 @@ fun BoardThumbnailResponse.toRedis() = RedisThumbnail(
     createDate = createDate,
 )
 
-fun BoardResponse.toRedisBanner() = RedisBanner(
+fun BannerResponse.toRedis() = RedisBanner(
     id = id,
     title = title
 )

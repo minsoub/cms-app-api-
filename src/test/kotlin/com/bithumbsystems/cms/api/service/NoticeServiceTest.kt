@@ -77,7 +77,7 @@ class NoticeServiceTest {
 
         coEvery { redisOperator.getTopList(REDIS_NOTICE_FIX_KEY, typeReference) } returns listOf(noticeTop)
         coEvery { cmsNoticeRepository.findCmsNoticeSearchTextAndPaging("", "", PageRequest.of(0, 15)) } returns flowOf(noticeList)
-        coEvery { cmsNoticeRepository.findCmsNoticeByIsFixTopAndIsShowOrderByScreenDateDesc() } returns flowOf(noticeList)
+        coEvery { cmsNoticeRepository.findCmsNoticeByIsFixTopAndIsShowAndIsDraftAndIsDeleteOrderByScreenDateDesc() } returns flowOf(noticeList)
         coEvery { cmsNoticeRepository.countCmsNoticeSearchTextAndPaging("", "") } returns 1
 
         val result = noticeService.getNoticeList(BoardRequest("", "", 0, 15))
@@ -121,7 +121,7 @@ class NoticeServiceTest {
             createAccountEmail = "a@a.com"
         )
 
-        coEvery { cmsNoticeRepository.findById("notice_id") } returns topCmpNotice
+        coEvery { cmsNoticeRepository.findByIdAndIsShowAndIsDraftAndIsDelete(id = "notice_id") } returns topCmpNotice
 
         coEvery { cmsNoticeCategoryRepository.findAllById(listOf("category_id")) } returns flowOf(category)
 

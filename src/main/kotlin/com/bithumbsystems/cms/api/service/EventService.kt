@@ -31,7 +31,7 @@ class EventService(
 
     suspend fun getEventList(
         boardRequest: BoardRequest
-    ): Result<DataResponse?, ErrorData> =
+    ): Result<DataResponse<BoardResponse, BoardResponse>?, ErrorData> =
         executeIn(
             dispatcher = ioDispatcher,
             action = {
@@ -46,8 +46,8 @@ class EventService(
                 }.toList()
 
                 DataResponse(
-                    topList,
-                    PageImpl(
+                    fix = topList,
+                    list = PageImpl(
                         cmsEventList,
                         pageable,
                         cmsEventRepository.countCmsEventSearchTextAndPaging(boardRequest.searchText)
@@ -57,7 +57,7 @@ class EventService(
             fallback = {
                 val pageable = boardRequest.toPageable()
 
-                val topList = cmsEventRepository.findCmsEventByIsFixTopAndIsShowOrderByScreenDateDesc().map {
+                val topList = cmsEventRepository.findByIsFixTopAndIsShowAndIsDraftAndIsDeleteOrderByScreenDateDesc().map {
                     it.toResponse()
                 }.toList()
 
@@ -66,20 +66,16 @@ class EventService(
                 }.toList()
 
                 DataResponse(
-                    topList,
-                    PageImpl(
+                    fix = topList,
+                    list = PageImpl(
                         cmsEventList,
                         pageable,
                         cmsEventRepository.countCmsEventSearchTextAndPaging(boardRequest.searchText)
                     )
                 )
             },
-            afterJob = {
-                val fixList = cmsEventRepository.findCmsEventByIsFixTopAndIsShowOrderByScreenDateDesc().map {
-                    it.toResponse()
-                }.toList()
-
-                val redisEventFix = fixList.map {
+            afterJob = { dataResponse ->
+                val redisEventFix = dataResponse.fix.map {
                     it.toRedis()
                 }
                 redisOperator.setTopList(redisKey, redisEventFix, RedisBoard::class.java)
@@ -90,7 +86,7 @@ class EventService(
         executeIn(
             dispatcher = ioDispatcher,
             action = {
-                val cmsEvent = cmsEventRepository.findById(id)
+                val cmsEvent = cmsEventRepository.findByIdAndIsShowAndIsDraftAndIsDelete(id = id)
 
                 val boardDetailResponse: BoardDetailResponse? = cmsEvent?.toDetailResponse()
 

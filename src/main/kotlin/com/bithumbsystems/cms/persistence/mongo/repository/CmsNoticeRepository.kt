@@ -8,9 +8,26 @@ import org.springframework.stereotype.Repository
 
 @Repository
 interface CmsNoticeRepository : CoroutineSortingRepository<CmsNotice, String>, CmsNoticeRepositoryCustom {
-    fun findCmsNoticeByIsFixTopAndIsShowOrderByScreenDateDesc(isFixTop: Boolean = true, isShow: Boolean = true): Flow<CmsNotice>
+    fun findCmsNoticeByIsFixTopAndIsShowAndIsDraftAndIsDeleteOrderByScreenDateDesc(
+        isFixTop: Boolean = true,
+        isShow: Boolean = true,
+        isDraft: Boolean = false,
+        isDelete: Boolean = false
+    ): Flow<CmsNotice>
 
-    fun findCmsNoticeByIsBannerAndIsShow(isBanner: Boolean = true, isShow: Boolean = true): Flow<CmsNotice>
+    fun findCmsNoticeByIsBannerAndIsShowAndIsDraftAndIsDelete(
+        isBanner: Boolean = true,
+        isShow: Boolean = true,
+        isDraft: Boolean = false,
+        isDelete: Boolean = false
+    ): Flow<CmsNotice>
+
+    suspend fun findByIdAndIsShowAndIsDraftAndIsDelete(
+        id: String,
+        isShow: Boolean = true,
+        isDraft: Boolean = false,
+        isDelete: Boolean = false
+    ): CmsNotice?
 }
 
 interface CmsNoticeRepositoryCustom {

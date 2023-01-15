@@ -2,11 +2,19 @@ package com.bithumbsystems.cms.api.service
 
 import com.bithumbsystems.cms.api.config.operator.ServiceOperator.executeIn
 import com.bithumbsystems.cms.api.model.request.BannerRequest
-import com.bithumbsystems.cms.api.model.response.*
-import com.bithumbsystems.cms.api.util.RedisKey
+import com.bithumbsystems.cms.api.model.response.BannerResponse
+import com.bithumbsystems.cms.api.model.response.ErrorData
+import com.bithumbsystems.cms.api.model.response.toBannerResponse
+import com.bithumbsystems.cms.api.model.response.toResponse
+import com.bithumbsystems.cms.api.util.RedisKey.REDIS_NOTICE_BANNER_KEY
+import com.bithumbsystems.cms.api.util.RedisRecentKey
+import com.bithumbsystems.cms.persistence.mongo.entity.CmsNotice
+import com.bithumbsystems.cms.persistence.mongo.repository.CmsNoticeCategoryRepository
 import com.bithumbsystems.cms.persistence.mongo.repository.CmsNoticeRepository
+import com.bithumbsystems.cms.persistence.mongo.repository.CmsPressReleaseRepository
 import com.bithumbsystems.cms.persistence.redis.RedisOperator
 import com.bithumbsystems.cms.persistence.redis.model.RedisBanner
+import com.bithumbsystems.cms.persistence.redis.model.toRedis
 import com.fasterxml.jackson.core.type.TypeReference
 import com.github.michaelbull.result.Result
 import kotlinx.coroutines.CoroutineDispatcher
@@ -19,29 +27,34 @@ import org.springframework.stereotype.Service
 class MainService(
     private val ioDispatcher: CoroutineDispatcher,
     private val redisOperator: RedisOperator,
-    private val noticeRepository: CmsNoticeRepository
+    private val noticeRepository: CmsNoticeRepository,
+    private val cmsPressReleaseRepository: CmsPressReleaseRepository,
+    private val cmsNoticeCategoryRepository: CmsNoticeCategoryRepository
 ) {
-    private val redisBannerKey: String = RedisKey.REDIS_NOTICE_BANNER_KEY
+
+    companion object {
+        const val MAX_SIZE = 5
+    }
 
     suspend fun getMobileBanner(): Result<List<BannerResponse>?, ErrorData> =
         executeIn(
             dispatcher = ioDispatcher,
             action = {
                 val typeReference = object : TypeReference<List<RedisBanner>>() {}
-
-                val banner: List<BannerResponse> = redisOperator.getTopList(redisBannerKey, typeReference).map { it.toResponse() }
-
+                val banner: List<BannerResponse> = redisOperator.getTopList(REDIS_NOTICE_BANNER_KEY, typeReference).map { it.toResponse() }
                 banner
             },
             fallback = {
-                val banner = noticeRepository.findCmsNoticeByIsBannerAndIsShow().map { it.toBannerResponse() }.toList()
-
+                val categoryMap = cmsNoticeCategoryRepository.findAll().map {
+                    it.id to it.name
+                }.toList().toMap()
+                val banner = noticeRepository.findCmsNoticeByIsBannerAndIsShowAndIsDraftAndIsDelete().map {
+                    makeToBannerResponse(it, categoryMap)
+                }.toList()
                 banner
             },
-            afterJob = {
-                val banner = noticeRepository.findCmsNoticeByIsBannerAndIsShow().map { it.toBannerResponse() }.toList()
-
-                redisOperator.setTopList(redisBannerKey, banner, BannerResponse::class.java)
+            afterJob = { bannerResponses ->
+                redisOperator.setTopList(REDIS_NOTICE_BANNER_KEY, bannerResponses.map { it.toRedis() }, RedisBanner::class.java)
             }
         )
 
@@ -50,6 +63,7 @@ class MainService(
     ): Result<List<BannerResponse>?, ErrorData> =
         executeIn(
             dispatcher = ioDispatcher,
+            validator = { bannerRequest.pageSize > MAX_SIZE },
             action = {
                 val key = bannerRequest.boardType.key
 
@@ -60,20 +74,30 @@ class MainService(
                 recentList.subList(0, bannerRequest.pageSize)
             },
             fallback = {
-                val pageable = PageRequest.of(0, bannerRequest.pageSize)
-
-                val recentList = noticeRepository.findCmsNoticePaging(pageable).map { it.toBannerResponse() }.toList()
-
-                recentList
+                val pageable = PageRequest.of(0, MAX_SIZE)
+                if (bannerRequest.boardType.key == RedisRecentKey.PRESS_RELEASE.name) {
+                    cmsPressReleaseRepository.findCmsPressReleasePaging(pageable).map { it.toBannerResponse() }.toList()
+                } else {
+                    val categoryMap = cmsNoticeCategoryRepository.findAll().map {
+                        it.id to it.name
+                    }.toList().toMap()
+                    noticeRepository.findCmsNoticePaging(pageable).map {
+                        makeToBannerResponse(it, categoryMap)
+                    }.toList()
+                }
             },
-            afterJob = {
-                val key = bannerRequest.boardType.key
-
-                val pageable = PageRequest.of(0, bannerRequest.pageSize)
-
-                val recentList = noticeRepository.findCmsNoticePaging(pageable).map { it.toBannerResponse() }.toList()
-
-                redisOperator.setTopList(key, recentList, BannerResponse::class.java)
+            afterJob = { recentList ->
+                redisOperator.setTopList(bannerRequest.boardType.key, recentList.map { it.toRedis() }, RedisBanner::class.java)
             }
         )
+
+    private fun makeToBannerResponse(
+        it: CmsNotice,
+        categoryMap: Map<String, String>
+    ): BannerResponse {
+        val categoryTitle = it.categoryIds?.map { id ->
+            categoryMap[id]
+        }?.joinToString("/", "[", "]")
+        return it.toBannerResponse(title = (categoryTitle + it.title).trim())
+    }
 }
