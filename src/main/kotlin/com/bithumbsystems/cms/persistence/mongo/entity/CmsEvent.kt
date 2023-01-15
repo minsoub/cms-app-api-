@@ -15,6 +15,7 @@ class CmsEvent(
     val isShow: Boolean = true,
     val isDelete: Boolean = false,
     val content: String,
+    val searchContent: String,
     val fileId: String? = null,
     val shareTitle: String? = null,
     val shareDescription: String? = null,

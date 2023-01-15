@@ -13,6 +13,7 @@ class CmsReviewReport(
     val isShow: Boolean = true,
     val isDelete: Boolean = false,
     val content: String,
+    val searchContent: String,
     val fileId: String? = null,
     val thumbnailFileId: String? = null,
     val thumbnailUrl: String? = null,

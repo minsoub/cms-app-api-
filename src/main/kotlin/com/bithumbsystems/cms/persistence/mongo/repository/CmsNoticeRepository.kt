@@ -32,8 +32,10 @@ interface CmsNoticeRepository : CoroutineSortingRepository<CmsNotice, String>, C
 
 interface CmsNoticeRepositoryCustom {
     fun findCmsNoticeSearchTextAndPaging(categoryId: String?, searchText: String?, pageable: PageRequest): Flow<CmsNotice>
+    fun findCmsNoticeSearchTextAndPagingInTitleContent(categoryId: String?, searchText: String?, pageable: PageRequest): Flow<CmsNotice>
 
     suspend fun countCmsNoticeSearchTextAndPaging(categoryId: String?, searchText: String?): Long
+    suspend fun countCmsNoticeSearchTextAndPagingInTitleContent(categoryId: String?, searchText: String?): Long
 
     fun findCmsNoticePaging(pageable: PageRequest): Flow<CmsNotice>
 }

@@ -33,6 +33,63 @@ class NoticeService(
 ) {
     private val redisKey: String = RedisKey.REDIS_NOTICE_FIX_KEY
 
+    suspend fun getNoticeListInTitleContent(
+        boardRequest: BoardRequest
+    ): Result<DataResponse<NoticeFixResponse, NoticeResponse>?, ErrorData> =
+        executeIn(
+            dispatcher = ioDispatcher,
+            action = {
+                val pageable = boardRequest.toPageable()
+
+                val typeReference = object : TypeReference<List<RedisNotice>>() {}
+
+                val topList: List<NoticeFixResponse> = redisOperator.getTopList(redisKey, typeReference).map { it.toResponse() }
+
+                val cmsNoticeList: List<NoticeResponse> =
+                    cmsNoticeRepository.findCmsNoticeSearchTextAndPagingInTitleContent(boardRequest.categoryId, boardRequest.searchText, pageable)
+                        .map {
+                            it.toResponse()
+                        }.toList()
+
+                DataResponse(
+                    fix = topList,
+                    list = PageImpl(
+                        cmsNoticeList,
+                        pageable,
+                        cmsNoticeRepository.countCmsNoticeSearchTextAndPagingInTitleContent(boardRequest.categoryId, boardRequest.searchText)
+                    )
+                )
+            },
+            fallback = {
+                val pageable = boardRequest.toPageable()
+
+                val topList = cmsNoticeRepository.findCmsNoticeByIsFixTopAndIsShowAndIsDraftAndIsDeleteOrderByScreenDateDesc()
+
+                val cmsNoticeList: List<NoticeResponse> = cmsNoticeRepository.findCmsNoticeSearchTextAndPaging(
+                    categoryId = boardRequest.categoryId,
+                    searchText = boardRequest.searchText,
+                    pageable = pageable
+                ).map {
+                    it.toResponse()
+                }.toList()
+
+                DataResponse(
+                    fix = getNoticeFixListWithCategory(topList),
+                    list = PageImpl(
+                        cmsNoticeList,
+                        pageable,
+                        cmsNoticeRepository.countCmsNoticeSearchTextAndPaging(boardRequest.categoryId, boardRequest.searchText)
+                    )
+                )
+            },
+            afterJob = { dataResponses ->
+                val redisNoticeFix = dataResponses.fix.map {
+                    it.toRedis()
+                }
+                redisOperator.setTopList(redisKey, redisNoticeFix, RedisNotice::class.java)
+            }
+        )
+
     suspend fun getNoticeList(
         boardRequest: BoardRequest
     ): Result<DataResponse<NoticeFixResponse, NoticeResponse>?, ErrorData> =

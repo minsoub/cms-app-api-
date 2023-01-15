@@ -15,6 +15,7 @@ class CmsEconomicResearch(
     val thumbnailFileId: String? = null,
     val thumbnailUrl: String? = null,
     val content: String,
+    val searchContent: String,
     val fileId: String? = null,
     val shareTitle: String? = null,
     val shareDescription: String? = null,

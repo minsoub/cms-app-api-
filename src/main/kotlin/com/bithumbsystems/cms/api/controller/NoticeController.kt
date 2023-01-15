@@ -84,6 +84,57 @@ class NoticeController(
                 responseCode = "200",
                 description = "조회 성공",
                 content = [
+                    Content(schema = Schema(implementation = BoardResponse::class))
+                ]
+            )
+        ]
+    )
+    @Parameters(
+        Parameter(
+            description = "카테고리 아이디",
+            name = "categoryId",
+            `in` = ParameterIn.QUERY,
+            required = false,
+            schema = Schema(implementation = String::class)
+        ),
+        Parameter(
+            description = "검색어",
+            name = "searchText",
+            `in` = ParameterIn.QUERY,
+            required = false,
+            schema = Schema(implementation = String::class)
+        ),
+        Parameter(
+            description = "페이지 번호",
+            name = "pageNo",
+            `in` = ParameterIn.QUERY,
+            schema = Schema(defaultValue = "1", implementation = Int::class),
+            example = "1"
+        ),
+        Parameter(
+            description = "페이지당 개시글 갯수",
+            name = "pageSize",
+            `in` = ParameterIn.QUERY,
+            schema = Schema(defaultValue = "15", implementation = Int::class),
+            example = "15"
+        ),
+    )
+    @Operation(method = "get", summary = "공지사항 리스트", description = "공지사항 고정 게시글 및 페이지에 해당하는 게시글 출력")
+    @GetMapping("/notices/bf")
+    suspend fun noticeListInTitleContent(
+        @QueryParam
+        @Parameter(hidden = true)
+        boardRequest: BoardRequest
+    ): ResponseEntity<Response<Any>> = execute {
+        noticeService.getNoticeListInTitleContent(boardRequest)
+    }
+
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200",
+                description = "조회 성공",
+                content = [
                     Content(schema = Schema(implementation = BoardDetailResponse::class))
                 ]
             )
