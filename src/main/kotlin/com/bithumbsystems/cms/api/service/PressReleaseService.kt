@@ -31,7 +31,7 @@ class PressReleaseService(
 
     suspend fun getPressReleaseList(
         boardRequest: BoardRequest
-    ): Result<DataResponse<BoardResponse>?, ErrorData> =
+    ): Result<DataResponse<BoardResponse, BoardResponse>?, ErrorData> =
         executeIn(
             dispatcher = ioDispatcher,
             action = {
@@ -84,7 +84,7 @@ class PressReleaseService(
         executeIn(
             dispatcher = ioDispatcher,
             action = {
-                val cmsPressRelease = cmsPressReleaseRepository.findById(id)
+                val cmsPressRelease = cmsPressReleaseRepository.findByIdAndIsShowAndIsDraftAndIsDelete(id = id)
 
                 val boardDetailResponse: BoardDetailResponse? = cmsPressRelease?.toDetailResponse()
 

@@ -14,6 +14,13 @@ interface CmsEconomicResearchRepository : CoroutineSortingRepository<CmsEconomic
         isDraft: Boolean = false,
         isDelete: Boolean = false
     ): Flow<CmsEconomicResearch>
+
+    suspend fun findByIdAndIsShowAndIsDraftAndIsDelete(
+        id: String,
+        isShow: Boolean = true,
+        isDraft: Boolean = false,
+        isDelete: Boolean = false
+    ): CmsEconomicResearch?
 }
 
 interface CmsEconomicResearchRepositoryCustom {

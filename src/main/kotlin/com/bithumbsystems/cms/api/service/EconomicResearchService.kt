@@ -31,7 +31,7 @@ class EconomicResearchService(
 
     suspend fun getEconomicResearchList(
         boardRequest: BoardRequest
-    ): Result<DataResponse<BoardThumbnailResponse>?, ErrorData> =
+    ): Result<DataResponse<BoardThumbnailResponse, BoardThumbnailResponse>?, ErrorData> =
         executeIn(
             dispatcher = ioDispatcher,
             action = {
@@ -91,7 +91,7 @@ class EconomicResearchService(
         executeIn(
             dispatcher = ioDispatcher,
             action = {
-                val cmsEconomicResearch = cmsEconomicResearchRepository.findById(id)
+                val cmsEconomicResearch = cmsEconomicResearchRepository.findByIdAndIsShowAndIsDraftAndIsDelete(id = id)
 
                 val boardDetailResponse: BoardDetailResponse? = cmsEconomicResearch?.toDetailResponse()
 

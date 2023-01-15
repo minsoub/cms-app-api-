@@ -31,7 +31,7 @@ class EventService(
 
     suspend fun getEventList(
         boardRequest: BoardRequest
-    ): Result<DataResponse<BoardResponse>?, ErrorData> =
+    ): Result<DataResponse<BoardResponse, BoardResponse>?, ErrorData> =
         executeIn(
             dispatcher = ioDispatcher,
             action = {
@@ -86,7 +86,7 @@ class EventService(
         executeIn(
             dispatcher = ioDispatcher,
             action = {
-                val cmsEvent = cmsEventRepository.findById(id)
+                val cmsEvent = cmsEventRepository.findByIdAndIsShowAndIsDraftAndIsDelete(id = id)
 
                 val boardDetailResponse: BoardDetailResponse? = cmsEvent?.toDetailResponse()
 

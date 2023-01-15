@@ -31,7 +31,7 @@ class ReviewReportService(
 
     suspend fun getReviewReportList(
         boardRequest: BoardRequest
-    ): Result<DataResponse<BoardThumbnailResponse>?, ErrorData> =
+    ): Result<DataResponse<BoardThumbnailResponse, BoardThumbnailResponse>?, ErrorData> =
         executeIn(
             dispatcher = ioDispatcher,
             action = {
@@ -90,7 +90,7 @@ class ReviewReportService(
         executeIn(
             dispatcher = ioDispatcher,
             action = {
-                val cmsReviewReport = cmsReviewReportRepository.findById(id)
+                val cmsReviewReport = cmsReviewReportRepository.findByIdAndIsShowAndIsDraftAndIsDelete(id = id)
 
                 val boardDetailResponse: BoardDetailResponse? = cmsReviewReport?.toDetailResponse()
 

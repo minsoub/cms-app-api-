@@ -14,6 +14,13 @@ interface CmsEventRepository : CoroutineSortingRepository<CmsEvent, String>, Cms
         isDraft: Boolean = false,
         isDelete: Boolean = false
     ): Flow<CmsEvent>
+
+    suspend fun findByIdAndIsShowAndIsDraftAndIsDelete(
+        id: String,
+        isShow: Boolean = true,
+        isDraft: Boolean = false,
+        isDelete: Boolean = false
+    ): CmsEvent?
 }
 
 interface CmsEventRepositoryCustom {

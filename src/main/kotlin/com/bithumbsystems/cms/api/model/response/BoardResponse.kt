@@ -94,7 +94,7 @@ fun RedisThumbnail.toResponse() = BoardThumbnailResponse(
     thumbnailUrl = thumbnailUrl
 )
 
-data class DataResponse<T>(
+data class DataResponse<T, R>(
     val fix: List<T>,
-    val list: Page<T>
+    val list: Page<R>
 )
