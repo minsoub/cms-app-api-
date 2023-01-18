@@ -10,6 +10,7 @@ import org.springframework.data.domain.Sort
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate
 import org.springframework.data.mongodb.core.query.Criteria
 import org.springframework.data.mongodb.core.query.Query
+import org.springframework.data.mongodb.core.query.TextCriteria
 import org.springframework.stereotype.Repository
 
 @Repository
@@ -76,16 +77,14 @@ class CmsNoticeRepositoryImpl(
         val criteria = Criteria()
         val andOperator = mutableListOf<Criteria>()
 
+        val textCriteria = TextCriteria()
         searchText?.let {
-            criteria.orOperator(
-                Criteria.where("search_content").regex(".*$searchText*.", "i")
-            )
+            textCriteria.matching(searchText)
         }
 
         categoryId?.let {
             andOperator.add(Criteria.where("category_ids").`in`(categoryId))
         }
-
         andOperator.add(Criteria.where("is_show").`is`(true))
         andOperator.add(Criteria.where("is_delete").`is`(false))
         andOperator.add(Criteria.where("is_draft").`is`(false))
@@ -96,6 +95,7 @@ class CmsNoticeRepositoryImpl(
         )
 
         query.addCriteria(criteria)
+        query.addCriteria(textCriteria)
         query.with(Sort.by(Sort.Direction.DESC, "screen_date"))
 
         return query
