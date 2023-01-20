@@ -27,6 +27,8 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-webflux")
     implementation("org.springframework.boot:spring-boot-configuration-processor:$springVersion")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
+//    implementation("io.projectreactor.tools:blockhound:1.0.6.RELEASE")
+//    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-debug")
 
     // Kotlin
     kapt("org.springframework.boot:spring-boot-configuration-processor:$springVersion")

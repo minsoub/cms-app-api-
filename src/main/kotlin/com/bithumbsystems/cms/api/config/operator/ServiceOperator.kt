@@ -27,6 +27,18 @@ object ServiceOperator {
         requestIdThreadLocal.set(requestId)
     }
 
+    fun getRequestId(): String {
+        return requestIdThreadLocal.get()
+    }
+
+    suspend fun getCurrentRequestId(): String {
+        val current = coroutineContext[ReactorContext]?.context?.get<String>(CONTEXT_NAME)!!
+
+        return withContext(asContextElement(current)) {
+            getRequestId()
+        }
+    }
+
     private fun clear() {
         requestIdThreadLocal.remove()
     }

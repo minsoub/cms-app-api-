@@ -80,6 +80,7 @@ class CmsNoticeRepositoryImpl(
         val textCriteria = TextCriteria()
         searchText?.let {
             textCriteria.matching(searchText)
+            query.addCriteria(textCriteria)
         }
 
         categoryId?.let {
@@ -95,7 +96,6 @@ class CmsNoticeRepositoryImpl(
         )
 
         query.addCriteria(criteria)
-        query.addCriteria(textCriteria)
         query.with(Sort.by(Sort.Direction.DESC, "screen_date"))
 
         return query

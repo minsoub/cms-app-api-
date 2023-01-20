@@ -1,9 +1,11 @@
 package com.bithumbsystems.cms.api.service
 
 import com.bithumbsystems.cms.api.config.operator.ServiceOperator.executeIn
+import com.bithumbsystems.cms.api.config.operator.ServiceOperator.getCurrentRequestId
 import com.bithumbsystems.cms.api.model.request.BoardRequest
 import com.bithumbsystems.cms.api.model.request.toPageable
 import com.bithumbsystems.cms.api.model.response.*
+import com.bithumbsystems.cms.api.util.Logger
 import com.bithumbsystems.cms.api.util.RedisKey
 import com.bithumbsystems.cms.api.util.RedisReadCountKey
 import com.bithumbsystems.cms.persistence.mongo.entity.CmsNotice
@@ -32,6 +34,7 @@ class NoticeService(
     private val redisOperator: RedisOperator
 ) {
     private val redisKey: String = RedisKey.REDIS_NOTICE_FIX_KEY
+    private val logger by Logger()
 
     suspend fun getNoticeListInTitleContent(
         boardRequest: BoardRequest
@@ -151,6 +154,8 @@ class NoticeService(
         executeIn(
             dispatcher = ioDispatcher,
             action = {
+                logger.info("action")
+
                 val cmsNotice = cmsNoticeRepository.findByIdAndIsShowAndIsDraftAndIsDelete(id = id)
                 val category = cmsNotice?.categoryIds?.let { cmsNoticeCategoryRepository.findAllById(it) }
 
@@ -164,11 +169,14 @@ class NoticeService(
                     boardDetailResponse.fileSize = fileInfo?.size
                     boardDetailResponse.fileName = "${fileInfo?.name}.${fileInfo?.extension}"
                 }
-
+                logger.info(getCurrentRequestId())
                 boardDetailResponse
             },
             afterJob = {
+                logger.info("afterJob")
                 // 조회 수 카운트 작업
+                logger.info(getCurrentRequestId())
+
                 redisOperator.publish(redisKey = RedisReadCountKey.REDIS_NOTICE_READ_COUNT_KEY, id = id)
             }
         )
