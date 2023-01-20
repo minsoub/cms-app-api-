@@ -9,9 +9,6 @@ import org.springframework.boot.autoconfigure.mongo.embedded.EmbeddedMongoAutoCo
 import org.springframework.boot.context.ApplicationPidFileWriter
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan
 import org.springframework.boot.runApplication
-import reactor.blockhound.BlockHound
-import reactor.blockhound.integration.BlockHoundIntegration
-import java.util.*
 
 @SpringBootApplication(
     exclude = [
@@ -29,11 +26,10 @@ class CmsAppApiApplication
 
 fun main(args: Array<String>) {
     runApplication<CmsAppApiApplication>(*args) {
-        val serviceLoader = ServiceLoader.load(BlockHoundIntegration::class.java)
-
-        BlockHound.builder()
-            .apply { serviceLoader.forEach { with(it) } }
-            .install()
+//        val serviceLoader = ServiceLoader.load(BlockHoundIntegration::class.java)
+//        BlockHound.builder()
+//            .apply { serviceLoader.forEach { with(it) } }
+//            .install()
         addListeners(ApplicationPidFileWriter())
     }
 }
